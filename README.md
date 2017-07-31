@@ -1,12 +1,13 @@
 # snippets
-Small snippets of useful code
+## Small snippets of useful code
 
-exac_coverage_20x.py
+# exac_coverage_20x.py
+
 prerequisites: 
-python 3
-sys, requests
+*python 3
+*sys, requests
 
-#useage:
+#usage:
 
 #python exac_coverage_20x.py [Chromosome] [genomic coordinate]
 
@@ -21,10 +22,10 @@ http://exac.hms.harvard.edu/
 
 This is best utilised when a variant is not reported in Exac.
 
-To elaborate, the abscence of a variant in Exac implies it is not identified in any of the cohort i.e. 60706 individuals.
-However, not all regions are covered equally and therefore roporting based on individuals covered at a certain depth enables
-a more infomrative figure.
+To elaborate, the absence of a variant in Exac implies it is not identified in any of the cohort i.e. 60706 individuals.
+However, not all regions are covered equally and therefore reporting based on individuals covered at a certain depth enables
+a more informative figure.
 
 As a caveat to this method, the allele number reported in the Exac browser includes those from individuals with a depth of coverage (DP) >= 10 
-and a genotype quality >= 20. Because there is not a genotype quality score avaiable through this method (as it is queries the depth metrics only)
-this mehtod will provide a greater allele number (number of idividuals x 2) than the Exac browser for any variant in the Exac database.
+and a genotype quality >= 20. Because there is not a genotype quality score available through this method (as it is queries the depth metrics only)
+this method will provide a greater allele number (number of individuals x 2) than the Exac browser for any variant in the Exac database.
