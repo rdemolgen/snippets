@@ -16,7 +16,7 @@ prerequisites:
 
 ## usage:
 
-## python exac_coverage_20x.py [Chromosome] [genomic coordinate]
+    python exac_coverage_20x.py [Chromosome] [genomic coordinate]
 
 example usage:
 
@@ -30,7 +30,7 @@ As a caveat to this method, the allele number reported in the Exac browser inclu
 and a genotype quality >= 20. Because there is not a genotype quality score available through this method (as it is queries the depth metrics only)
 this method will provide a greater allele number (number of individuals x 2) than the Exac browser for any variant in the Exac database.
 
-#PM1_plots
+# PM1_plots
 
 This code is designed to aggregate data to contribute to the interpretation of novel variants and deduce whether said variant is in a pathogenic variation hotspot, with an absence of benign variation.
 
@@ -52,9 +52,9 @@ Prerequisites:
 
 ## usage 
 
-python PM1_plotter.py [gene] [amino acid residue number]
+    python PM1_plotter.py [gene] [amino acid residue number]
 
 ## example usage
 
-python PM1_plotter.py ABCC8 123
+    python PM1_plotter.py ABCC8 123
 
