@@ -33,8 +33,10 @@ this method will provide a greater allele number (number of individuals x 2) tha
 #PM1_plots
 
 This code is designed to aggregate data to contribute to the interpretation of novel variants and deduce whether said variant is in a pathogenic variation hotspot, with an absence of benign variation.
+It was written as part of a trainee project and although it produces a useful plot, there is much scope for development in terms of code structure,
+the data included as well as visualisation.
 
-It will plot and svg using gnuplot with the amino acid residue along the x-axis. Data sources include:
+It will plot and svg using gnuplot with the amino acid residue along the x-axis and varying y axis scales. Data sources include:
 * Harvard Exac API 
 * HGMD
 * UniProt 
