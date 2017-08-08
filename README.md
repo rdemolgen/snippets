@@ -16,7 +16,7 @@ prerequisites:
 
 ## usage:
 
-## python exac_coverage_20x.py [Chromosome] [genomic coordinate]
+    python exac_coverage_20x.py [Chromosome] [genomic coordinate]
 
 example usage:
 
