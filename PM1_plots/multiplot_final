@@ -1,16 +1,20 @@
 #!/usr/local/bin/gnuplot
 
+#type, colour and size of output 
 set terminal svg background rgb 'grey90' size 2000, 800
+#name of the output file
 set output svg_name
+#title at the top of the file
 set title gene_name
+
+
 set lmargin at screen 0.18
 set rmargin at screen 0.95
 
-#left,bottom,,top
-
+#use the multiplot function to display multiple plots
 set multiplot
-#layout 4,1
 
+#takes tab separated data
 set datafile separator '\t'
 
 #set HGMD formats
@@ -39,7 +43,8 @@ DMq_track = DM_track + 3
 DMq_phen = DM_phen + 3
 
 set key inside right top
-plot data u DM_residue:DM_track:ytic(DM_phen) with points pt 2 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
+plot data u DM_residue:DM_track:ytic(DM_phen) with points pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
+#plot data u DM_residue:DM_track:ytic(DM_phen) with circles title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
 
 #plot data u 15:13:ytic(14) with points pt 2 title 'DM', data u 18:16:ytic(17) with points pt 4 title 'DMq'
 
@@ -54,7 +59,8 @@ set style increment user
 #set domain format
 set origin 0,0.58
 set size 1,0.15
-set xtics 0,x_length out nomirror
+set xtics out nomirror
+#set xtics 0,x_length out nomirror
 unset title
 unset ytics
 unset y2tics
