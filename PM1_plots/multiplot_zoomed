@@ -1,0 +1,109 @@
+#!/usr/local/bin/gnuplot
+
+set terminal svg background rgb 'grey90' size 2000, 800
+set output svg_name
+set title gene_name
+set lmargin at screen 0.18
+set rmargin at screen 0.95
+
+#left,bottom,,top
+
+set multiplot
+#layout 4,1
+
+set datafile separator '\t'
+
+#set HGMD formats
+unset xtics
+set xrange [0:x_length]
+set x2range [0:x_length]
+unset key
+unset border
+unset ylabel
+set ytics out nomirror
+set yrange[0:total_phen_count]
+set grid
+unset y2tics
+set origin 0,0.7
+set size 1,0.3
+set arrow from user_pos,-1 to user_pos,total_phen_count nohead lc rgb 'red'
+DM_residue = domain_gnu + 11
+print DM_residue
+DM_track = DM_residue - 2
+print DM_track
+DM_phen = DM_residue - 1
+print DM_phen
+
+DMq_res = DM_residue + 3
+DMq_track = DM_track + 3
+DMq_phen = DM_phen + 3
+
+set key inside right top
+plot data u DM_residue:DM_track:ytic(DM_phen) with points pt 2 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
+
+#plot data u 15:13:ytic(14) with points pt 2 title 'DM', data u 18:16:ytic(17) with points pt 4 title 'DMq'
+
+#domain styles
+set style line 1 lt 4 lw 8 lc rgb 'navy'
+set style line 2 lt 4 lw 8 lc rgb 'orange'
+set style line 3 lt 4 lw 8 lc rgb 'red'
+set style line 4 lt 4 lw 8 lc rgb 'pink'
+#iterate for subsequent plots unless specified
+set style increment user
+
+#set domain format
+set origin 0,0.58
+set size 1,0.15
+set xtics 0,x_length out nomirror
+unset title
+unset ytics
+unset y2tics
+unset grid
+#set ylabel 'Uniprot Domains' rotate by 0 offset -8
+set yrange [0:domain_count]
+set border 1 lw 2
+set key autotitle columnheader
+#set key at 2642,3 vertical maxrows 3
+set key at 0,domain_count vertical maxrows domain_count
+set datafile missing "?"
+unset arrow
+set arrow from user_pos,-11 to user_pos,total_phen_count nohead lc rgb 'red'
+plot for [i=2:domain_gnu] data u 1:(column(i)) with lines
+
+set style line 10 lt 4 lw 0.5 lc rgb 'navy'
+set style line 11 lt 4 lw 1 lc rgb 'red'
+set origin 0,0.4
+set size 1,0.2
+set yrange [1:9]
+unset border
+set ytics out nomirror
+set ylabel 'consurf score' rotate by 0 offset -8
+unset xtics
+unset arrow
+set arrow from user_pos,0.00001 to user_pos,total_phen_count nohead lc rgb 'red'
+position_col = domain_gnu + 8
+cons_data = position_col - 3
+
+plot data u position_col:cons_data with lines ls 10 notitle
+#plot data u 12:9 with lines ls 10 notitle
+#data u 12:11 with lines ls 11 notitle
+
+set origin 0,0.2
+set size 1,0.2
+set format y "%.0tx10^%+03T"
+set ytics out nomirror
+set yrange [0.00001:1]
+set xlabel "Protein residue (n)"
+set ylabel "Exac all MAF" rotate by 0 offset -6
+set logscale y
+set key inside right top
+#need to feed i variable columns
+
+het_pos = domain_gnu + 1
+het_freq = domain_gnu + 2
+hom_pos = domain_gnu + 3
+hom_freq = domain_gnu + 4
+
+plot data u het_pos:het_freq pt 2 title 'heterozygous', data u hom_pos:hom_freq pt 3 title 'homozygous'
+
+#plot data u 5:6 with points pt 2 notitle, data u 7:8 with points pt 3 notitle
