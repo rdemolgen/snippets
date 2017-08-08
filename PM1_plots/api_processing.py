@@ -7,7 +7,7 @@ class Uniprot_api():
         self.upload_ext = 'http://www.uniprot.org/uploadlists/'
         self.entry_ext = 'http://www.uniprot.org/uniprot/'
 
-    #given an enseml_id returns the uniprot responses as a list of dictionaries
+    #given an ensembl_id returns the uniprot responses as a list of dictionaries
     def get_pid_from_gene(self, ensembl_id):
         params = {'from':'ENSEMBL_ID','to':'ACC','format':'tab','query': ensembl_id }
         r = requests.get(self.upload_ext, params=params)
@@ -60,9 +60,6 @@ class Ensembl_api():
                 print(reference["id"])
                 return reference["id"]
                 
-    def tester(self, string):
-        print(string)
-
 class Exac_api():
 
     def __init__(self):
@@ -137,6 +134,7 @@ class Exac_api():
         else:
             return HGVSp
 
+#creates class based on key, value **kwargs
 class HGMD_variant():
     
     def __init__(self, **entries):
