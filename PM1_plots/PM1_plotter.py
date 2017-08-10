@@ -114,7 +114,7 @@ class Graph_object():
 
     #filters gff data EDIT the list here to change which annotations are included
     def specific_gff_annotations(self):
-    	required_list = ["Domain", "Region", "DNA binding", "Zinc finger", "Motif", "Transmembrane", "Intramembrane", "Compositional bias", "Topological domain"]
+    	required_list = ["Domain", "Region", "DNA binding", "Zinc finger", "Motif", "Transmembrane", "Intramembrane", "Compositional bias"]
     	gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
     	#print(self.all_gff_annotation)
     	return gff_objects
