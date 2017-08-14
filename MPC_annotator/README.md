@@ -1,4 +1,4 @@
-# MPC_annotatos.py
+# MPC_annotator.py
 
 created by Stuart Cannon s.cannon@exeter.ac.uk
 
