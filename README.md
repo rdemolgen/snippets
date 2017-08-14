@@ -1,5 +1,6 @@
 # snippets
-# created by Stuart Cannon s.cannon@exeter.ac.uk
+
+created by Stuart Cannon s.cannon@exeter.ac.uk
 
 ## This repo has been created to contain scripts which have been found useful for a clinical diagnostic setting.
 Each directory contains the code required for a specific purpose; the details of which are included in separated READMEs.

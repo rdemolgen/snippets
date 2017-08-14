@@ -1,5 +1,6 @@
 # PM1_plots
-# created by Stuart Cannon s.cannon@exeter.ac.uk
+
+created by Stuart Cannon s.cannon@exeter.ac.uk
 
 This code is designed to aggregate data to contribute to the interpretation of novel variants and deduce whether said variant is in a pathogenic variation hotspot, with an absence of benign variation.
 It was written as part of a trainee project and although it produces a useful plot, there is much scope for development in terms of code structure,

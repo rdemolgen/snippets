@@ -1,6 +1,6 @@
-# created by Stuart Cannon s.cannon@exeter.ac.uk 
-
 # exac_coverage_20x.py
+
+created by Stuart Cannon s.cannon@exeter.ac.uk
 
 The following method returns the number of individuals covered at 20x for the genomic coordinated submitted by the user
 from the Exac API:
