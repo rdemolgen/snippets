@@ -424,7 +424,6 @@ class Graph_object():
         DMq_phen_count = self.construct_gnuplot_command("DMq_phen_count", str(self.HGMD_DMq_track_count))
         total_phen_count = self.construct_gnuplot_command("total_phen_count", str(self.total_phen_count))
         user_pos = self.construct_gnuplot_command("user_pos", str(self.user_pos))
-        urf, '-e', hgmd, "plot"]
         gnuplot_command = ['gnuplot',
                            '-e', svg_name,
                            '-e', gene_name,
