@@ -43,7 +43,7 @@ DMq_track = DM_track + 3
 DMq_phen = DM_phen + 3
 
 set key inside right top
-plot data u DM_residue:DM_track:ytic(DM_phen) with points pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
+plot data u DM_residue:DM_track:ytic(DM_phen) with points pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) with points pt 7 title 'DM?'
 #plot data u DM_residue:DM_track:ytic(DM_phen) with circles title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
 
 #plot data u 15:13:ytic(14) with points pt 2 title 'DM', data u 18:16:ytic(17) with points pt 4 title 'DMq'
@@ -110,6 +110,6 @@ het_freq = domain_gnu + 2
 hom_pos = domain_gnu + 3
 hom_freq = domain_gnu + 4
 
-plot data u het_pos:het_freq pt 2 title 'heterozygous', data u hom_pos:hom_freq pt 3 title 'homozygous'
+plot data u het_pos:het_freq with points pt 7 title 'heterozygous', data u hom_pos:hom_freq with points pt 7 title 'homozygous'
 
 #plot data u 5:6 with points pt 2 notitle, data u 7:8 with points pt 3 notitle
