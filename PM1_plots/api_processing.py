@@ -54,10 +54,12 @@ class Ensembl_api():
         ext = "/xrefs/symbol/homo_sapiens/" + gene_symbol + "?external_db=HGNC"
         r = requests.get(self.server + ext, headers={ "Content-Type" : "application/json"})    
         json_r = r.json()
+        for transcript in json_r:
+            if "ENST" in transcript["id"]:              
+                print("Ensembl Transcript ID: "+ transcript["id"])
         for reference in json_r:
-            if reference["id"].startswith("ENS"):
-                #print()
-                print(reference["id"])
+            if "ENSG" in reference["id"]:              
+                print("Ensembl Gene ID for " + gene_symbol + ": " + reference["id"] + "\n")
                 return reference["id"]
                 
 class Exac_api():
@@ -164,7 +166,11 @@ class HGMD_pro():
         gene_id_element = form.find("input", attrs={"name" : "gene_id"})
         gene_id_value = gene_id_element['value']
         trans_element = form.find("input", attrs={"name" : "refcore"})
-        transcript_value = trans_element['value']      
+        transcript_value = trans_element['value']
+        transcript_form = soup.find("form", attrs={"action" : "cdna.php"})
+        transcript_id_element = form.find("input", attrs={"name" : "refcore"})
+        transcript_id_value = transcript_id_element['value']
+        print("HGMD transcipt ID: " + transcript_id_value)
        
         params = {"gene" : self.gene, "inclsnp" : "N", "base" : "Z", "refcore" : transcript_value, "gene_id" : gene_id_value, "database" : "Get all mutations"}
 

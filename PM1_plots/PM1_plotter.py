@@ -24,13 +24,13 @@ class Graph_object():
         self.user_pos = user_pos
     	#Ensembl#############################
         self.Ens = Ensembl_api()
-        print('Getting Ensembl geneID for ' + gene_name)
-        print(' ')
-        self.ensembl_id = self.get_ensemble_id(gene_name)
+        print('\nGetting Ensembl gene ID for ' + gene_name + '...\n')
+        self.ensembl_id = self.get_ensembl_id(gene_name)
         #Uniprot##########################
         self.Up = Uniprot_api()
         #composite file_name to add data to as it is parsed from different sources
-        self.plotting_file = gene_name + 'composite.data'
+        self.plotting_file = gene_name + '_composite_' + user_pos + '.data'
+        #self.plotting_file = gene_name + '_composite.data'
         self.zoomed_plot = gene_name + 'zoomed_composite.data'
         #dict of uniprot entries for this ensembl transcript
         print('Getting Uniprot annotation file') 
@@ -44,25 +44,28 @@ class Graph_object():
         #Gff objects where values are ranges of 'Domain', 'Region', 'DNA binding'
         self.requried_gff_annotations = self.specific_gff_annotations()
         #generates dict of arrays to be written to master gnuplot file
-        self.plottable_domains = self.generate_plottable_domains()
+        self.plottable_domains = self.generate_plottable_domains(self.length)
         
         #Exac##############################
-        print('Gathering exac data using ensemble geneID')
-        print(' ')
+        print('Gathering ExAC data using Ensembl gene ID...')
         self.Ex = Exac_api()
         self.all_exac_variants = self.get_exac_data(self.ensembl_id)
         
         #Consurf###########################
-        print('Gathering Consurf data stored on the server')
-        print(' ')
-        self.consurf_file = self.find_consurf_file(gene_name)
-        #dict of consurfscore and position
-        self.consurf_data = self.parse_consurf_grades(self.consurf_file)
-        #datafram of all data
+        print('\nGathering Consurf data stored on the server...\n')
+        try:
+            self.consurf_file = self.find_consurf_file(gene_name)
+            #dict of consurf scores and position
+        except:
+            self.consurf_file = "no_file"
+            print("No Consurf data available in consurf_outputs\n")  
+        self.consurf_data = self.parse_consurf_grades(self.consurf_file, self.length)
+        #dataframe of all data
         self.write_consurf_data = self.write_consurf_grades(self.consurf_data)
-        
+
+        	
         #HGMD##############################
-        print('Gathering HGMD data from website')
+        print('\nGathering HGMD data from website...\n')
         self.hgmd_data = self.get_HGMD_data(gene_name)             
         self.write_DM_data = self.write_HGMD_data(self.DM_objs)
         self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
@@ -72,15 +75,14 @@ class Graph_object():
         #self.get_gnomad(
         
         #GNU plotter#######################
-        print('Plotting all data')
-        self.execute_gnuplot(gene_name)
+        print('\nPlotting all data\n')
+        self.execute_gnuplot(gene_name, user_pos)
         #self.create_smaller_graph_file()
         #self.execute_zoomed_gnuplot(gene_name)
         
-
     ### Ensembl_id   ####################################################
-    #required for exac query
-    def get_ensemble_id(self, HGNC_gene):
+    #required for ExAC query
+    def get_ensembl_id(self, HGNC_gene):
         id = self.Ens.query_HGNC(HGNC_gene)
         return id
 
@@ -97,38 +99,36 @@ class Graph_object():
             try:
                 if entry_dict['Organism'] == 'Homo sapiens (Human)' and entry_dict['Status'] == 'reviewed':
                     human_match_list.append(entry_dict)
+                    print(human_match_list)
             except:
-               print('check reviewd trascript is identified. see interpretation_assist.py reviewed_human_entries /n returned list :')
+               print('Check reviewed transcript is identified. See returned list:')
                print(human_match_list)
+               print("Try re-running script, Uniprot connection possibly failed")
         return human_match_list
-    
+ 
     #returns the gff annotation data for gene of interest
     def get_gff_domains(self):
         if len(self.reviewed_uniprot_entries) == 1:
             gff_response = self.Up.get_entry_gff(self.reviewed_uniprot_entries[0]["Entry"])
+            print(gff_response)
+            print('\nOne reviewed Uniprot entry found, connection to Uniprot successful\n')
             return gff_response.text
         elif len(human_match_list) == 0:
-            print('no_up_id_matches -- see interpretation_assist.py gff_domains')
+            print('no_up_id_matches -- see PM1_plotter.py gff_domains')
         elif len(human_match_list) > 1:
-            print('more than 1 reviewd human entry interpretation_assist.py gff_domains')
+            print('More than 1 reviewed human Uniprot transcript entry PM1_plotter.py gff_domains')
 
     #filters gff data EDIT the list here to change which annotations are included
     def specific_gff_annotations(self):
-    	required_list = ["Domain", "Region", "DNA binding", "Zinc finger", "Motif", "Transmembrane", "Intramembrane", "Compositional bias"]
-    	gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
+        # N.B. Adding "Topological domain" will cause the script to fail
+        required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding"]
+        gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
     	#print(self.all_gff_annotation)
-    	return gff_objects
+        return gff_objects
 
-    #uses numpy to dynamically manage/write arrays of data where abscence of data indicates no domain
-    #e.g. d1 has 2 amino acids in one domain and d2 has 3 amino acids in one domain
-    #these are plotted as separate series on a linegraph
-    #d1 d2
-    # 1
-    # 1  2
-    #    2
-    #    2
-    def generate_plottable_domains(self):
-        length = self.reviewed_uniprot_entries[0]['Length']
+    def generate_plottable_domains(self,length):
+        #length = self.reviewed_uniprot_entries[0]['Length']
+        print("Protein length: " + str(length) + " amino acids")
         master_dict = {}
         domain_array = {}
         annotation_index = 0
@@ -157,11 +157,13 @@ class Graph_object():
         return arrays_to_save
     
     #generates arrays as specified above, 
-    #note the additional logic to deal with the first and last differntly 
+    #note the additional logic to deal with the first and last differently 
     def array_creator(self, master_dict, key, annotation_index, length):
+    	##print('array creator initiated for ' + key)
         this_annotation_array = []
         domain_count = 0
         position = 0
+        ##print('iterating through annotations for ' + key)
         master_dict_iter = iter(master_dict[key])
         for v in master_dict[key]:
             #print(v)
@@ -213,8 +215,8 @@ class Graph_object():
         return this_annotation_array
 
     ### Exac data  ##################################################################
-    #gets exac variants in the ensembl gene
-    #filters to retain exac pass filter, missense, initiator_codon_variant, stop_gained, frameshift_variant, inframe_deletion, stop_lost, canonical
+    #gets ExAC variants in the ensembl gene
+    #filters to retain ExAC pass filter, missense, initiator_codon_variant, stop_gained, frameshift_variant, inframe_deletion, stop_lost, canonical
     def get_exac_data(self, ensembl_id):
         filter_dict = {"major_consequence" : ["synonymous_variant",
                                               "splice_region_variant",
@@ -260,14 +262,22 @@ class Graph_object():
         base = "consurf_scores/"
         for dirs, subdirs, files in os.walk(base):
             if dirs.endswith(gene_name):
-                print(os.path.join(dirs, files[0]))
+                #print(os.path.join(dirs, files[0]))
                 return os.path.join(dirs, files[0])
 
+
     #excludes consurf scores marked with * to indicate low confidence
-    def parse_consurf_grades(self, consurf_file):
+    def parse_consurf_grades(self, consurf_file, length):
         cons_pos = { "cons" : [],
     	             "pos" : []}
-        if consurf_file:
+    	# consurf.grades file for gene does not exist in consurf_outputs folder, create mock file
+        if consurf_file == "no_file":
+            print("no file")
+            cons_pos["pos"] = list(range(int(length)+1))
+            del(cons_pos["pos"][0])
+            cons_pos["cons"] = [1]
+            cons_pos["cons"] = cons_pos["cons"]*int(length)
+        elif consurf_file:
             with open(consurf_file, 'r') as inf:
                 count = 0
                 for line in inf:
@@ -278,10 +288,14 @@ class Graph_object():
                         if '*' in spl[4]:
                             cons_pos["cons"].append(0)
                         else:
-                            cons_pos["cons"].append(spl[4].strip(' '))
+                            cons_pos["cons"].append(spl[4].strip(' '))      		
+        #print(cons_pos)
+        #print(len(cons_pos['cons']))
+        #print(len(cons_pos['pos']))
         return cons_pos                        	      
 
-    #opens data, creates a new df with conservation, running mean and cumulative mean. Then adds position to be used with gnuplot
+    #opens data, creates a new df with conservation, running mean and cumulative mean.
+    #Then adds position to be used with gnuplot
     def write_consurf_grades(self, cons_pos_dict, indexed=True):
         df = pd.read_csv(self.plotting_file, delimiter='\t', index_col=0)
         cons_df = pd.DataFrame({'cons' : cons_pos_dict['cons']})
@@ -299,6 +313,8 @@ class Graph_object():
         all_mutations_soup = HGMD.scrape_HGMD_all_mutations()
         #list of objects
         variant_instances = HGMD.extract_missense_nonsense(all_mutations_soup)
+        #for i in variant_instances:
+           #print(i.__dict__)
         #returns dict of mutation class and list of objects in that class
         separate_var_class = self.var_class_separator(variant_instances)
         for var_class,objs in separate_var_class.items():
@@ -313,7 +329,10 @@ class Graph_object():
     #Writes HGMD data into columns by phentype, separates by DM and DM? annotation
     #assigns an index number to each phentotype so they can be plotted separately without many columns in the datafile
     def write_HGMD_data(self, obj_d, DM=True):
+    	#for k,v in obj_d.items():
+    	#    print(k,v)
         df = pd.read_csv(self.plotting_file, delimiter='\t', index_col=0)
+        #phen_index where { phen : count }
         track = []
         phenotype = []
         position = []
@@ -322,6 +341,7 @@ class Graph_object():
             for phen, var_list in obj_d.items():
                 var_pos_list = self.var_pos_extractor(var_list)
                 if var_pos_list != []:
+                	#generate columns
                     count += 1
                     count_index = [count] * len(var_pos_list)
                     track = track + count_index
@@ -337,6 +357,11 @@ class Graph_object():
             df = pd.concat([df, phen_df], axis=1)
             pos_df = pd.DataFrame({'DM_Residue' : position}) 
             df = pd.concat([df, pos_df], axis=1)
+            #df.to_csv(self.plotting_file, sep='\t', na_rep=list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
+            #df.to_csv(self.plotting_file, sep='\t', na_rep="?")
+            #print(df)
+            #print(list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
+            #print([list(self.phen_index.values())])
             df.to_csv(self.plotting_file, sep='\t', na_rep=list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
             self.HGMD_DM_track_count = count
             self.total_phen_count = count
@@ -363,12 +388,16 @@ class Graph_object():
             phen_df = pd.DataFrame({'DMq_phenotype' : phenotype})  
             df = pd.concat([df, phen_df], axis=1)
             pos_df = pd.DataFrame({'DM_qResidue' : position}) 
-            df = pd.concat([df, pos_df], axis=1)
+            df = pd.concat([df, pos_df], axis=1)      
+            #sorted_keys = sorted(self.phen_index, key=self.phen_index.__getitem__)
+            #phen_uniq_df = pd.DataFrame({'phenotype_labels' : sorted_keys})
+            #df = pd.concat([df, phen_uniq_df], axis=1)
             df.to_csv(self.plotting_file, sep='\t', na_rep=list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
             self.HGMD_DMq_track_count = count
 
     #extracts the amino acid position of each variant 
     def var_pos_extractor(self, var_list):
+        ##print(var_list)
         pos_list = []
         if type(var_list) == list:
             for var in var_list:
@@ -382,7 +411,7 @@ class Graph_object():
                     print(var.HGVS_prot)
         return pos_list 
 
-    #retaign the dictionary order
+    #retain the dictionary order
     def var_class_separator(self, obj_list):
         class_groups = defaultdict(list)
         for obj in obj_list:
@@ -396,21 +425,62 @@ class Graph_object():
             phen_groups[obj.phenotype].append(obj)
         phen_groups['phen_count'] = len(phen_groups.keys())
         return phen_groups
-             
+            
 
 ### plot all data ###############################################################
 
-    #constructs command line argument to feed variables into gnuplot script, essentially a basic wrapper
-    #gene name as title
+    #constructs command line argument to feed variables into gnuplot script
+    #gene name as title, length of x axis
+    #returns output_variable=variable
     def construct_gnuplot_command(self, var_name, var):
         variable = "'" + var + "'"
         cmd = var_name + '=' + variable
+        #print(cmd)
         return(cmd)
         
+    def execute_zoomed_gnuplot(self, gene_name):
+        length = int(self.slice_end) - int(self.slice_start)
+        #print(length)
+        svg_name_string = gene_name + '_zoomed_composite.svg'
+        svg_name = self.construct_gnuplot_command("svg_name", svg_name_string)
+        print(svg_name_string)
+        x_length = self.construct_gnuplot_command("x_length" , str(length))
+        gene_name = self.construct_gnuplot_command("gene_name", gene_name)
+        data = self.construct_gnuplot_command("data", self.zoomed_plot)
+        #print(data)
+        if self.domain_count == 0:
+            domain_count = self.coonstruct_gnuplot_command("domain_count", "1")
+        else:
+            domain_count = self.construct_gnuplot_command("domain_count", str(self.domain_count))
+            domain_gnu = self.construct_gnuplot_command("domain_gnu", str(self.domain_count + 1))
+        #self.HGMD_track_count = count
+        #MAY NEED SOME LOGIC TO PLOT THE LARGEST AXIS FOR PHENOTYPES CURRENTLY PLOTTED BASED ON DM COUNT 
+        DM_phen_count = self.construct_gnuplot_command("DM_phen_count", str(self.HGMD_DM_track_count))
+        #print(DM_phen_count)
+        DMq_phen_count = self.construct_gnuplot_command("DMq_phen_count", str(self.HGMD_DMq_track_count))
+        #print(DMq_phen_count)
+        total_phen_count = self.construct_gnuplot_command("total_phen_count", str(self.total_phen_count))
+        user_pos = self.construct_gnuplot_command("user_pos", str(self.user_pos))
+        gnuplot_command = ['gnuplot',
+                           '-e', svg_name,
+                           '-e', gene_name,
+                           '-e', user_pos,
+                           '-e', x_length,
+                           '-e', data,
+                           '-e', domain_count,
+                           '-e', domain_gnu,
+                           '-e', DM_phen_count,
+                           '-e', DMq_phen_count,
+                           '-e', total_phen_count,
+                           "multiplot_zoomed"]
+        #print(gnuplot_command)
+        subprocess.call(gnuplot_command)
+        
     #call gnuplot script
-    def execute_gnuplot(self, gene_name):
+    def execute_gnuplot(self, gene_name, user_pos):
+        #print(len(self.plottable_domains))
         adjusted_length = int(self.length)
-        svg_name_string = gene_name + '_composite.svg'
+        svg_name_string = gene_name + '_composite_' + user_pos + '.svg'
         svg_name = self.construct_gnuplot_command("svg_name", svg_name_string)
         x_length = self.construct_gnuplot_command("x_length" , str(adjusted_length))
         gene_name = self.construct_gnuplot_command("gene_name", gene_name)
@@ -420,10 +490,20 @@ class Graph_object():
         else:
             domain_count = self.construct_gnuplot_command("domain_count", str(self.domain_count))
             domain_gnu = self.construct_gnuplot_command("domain_gnu", str(self.domain_count + 1))
+        #self.HGMD_track_count = count
+        #MAY NEED SOME LOGIC TO PLOT THE LARGEST AXIS FOR PHENOTYPES CURRENTLY PLOTTED BASED ON DM COUNT 
         DM_phen_count = self.construct_gnuplot_command("DM_phen_count", str(self.HGMD_DM_track_count))
+        #print(DM_phen_count)
         DMq_phen_count = self.construct_gnuplot_command("DMq_phen_count", str(self.HGMD_DMq_track_count))
+        #print(DMq_phen_count)
         total_phen_count = self.construct_gnuplot_command("total_phen_count", str(self.total_phen_count))
         user_pos = self.construct_gnuplot_command("user_pos", str(self.user_pos))
+        #domains = construct_gnuplot_command("domains", "temp_domain_file")
+        #domain_ints = construct_gnuplot_command("domain_ints", "temp_dom_ints_file")
+        #exac = construct_gnuplot_command("exac", "temp_freq_file")
+        #consurf = construct_gnuplot_command("consurf", "temp_cons_file")
+        #hgmd = construct_gnuplot_command("hgmd", "temp_hgmd_file")
+        #gnuplot_command = ['gnuplot', '-e', svg_name, '-e', gene_name, '-e', x_length, '-e', domains, '-e', domain_ints, '-e', exac, '-e', consurf, '-e', hgmd, "plot"]
         gnuplot_command = ['gnuplot',
                            '-e', svg_name,
                            '-e', gene_name,

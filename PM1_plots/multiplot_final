@@ -7,7 +7,6 @@ set output svg_name
 #title at the top of the file
 set title gene_name
 
-
 set lmargin at screen 0.18
 set rmargin at screen 0.95
 
@@ -31,24 +30,31 @@ unset y2tics
 set origin 0,0.7
 set size 1,0.3
 set arrow from user_pos,-1 to user_pos,total_phen_count nohead lc rgb 'red'
+print("domain_gnu:") 
+print domain_gnu
 DM_residue = domain_gnu + 11
+print("DM_residue:")
 print DM_residue
 DM_track = DM_residue - 2
+print("DM_track:")
 print DM_track
 DM_phen = DM_residue - 1
+print("DM_phen:")
 print DM_phen
+
+print data
 
 DMq_res = DM_residue + 3
 DMq_track = DM_track + 3
 DMq_phen = DM_phen + 3
 
 set key inside right top
-plot data u DM_residue:DM_track:ytic(DM_phen) with points pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) with points pt 7 title 'DM?'
+plot data u DM_residue:DM_track:ytic(DM_phen) with points pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
 #plot data u DM_residue:DM_track:ytic(DM_phen) with circles title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
 
 #plot data u 15:13:ytic(14) with points pt 2 title 'DM', data u 18:16:ytic(17) with points pt 4 title 'DMq'
 
-#domain styles
+#Uniprot domain styles
 set style line 1 lt 4 lw 8 lc rgb 'navy'
 set style line 2 lt 4 lw 8 lc rgb 'orange'
 set style line 3 lt 4 lw 8 lc rgb 'red'
@@ -56,7 +62,7 @@ set style line 4 lt 4 lw 8 lc rgb 'pink'
 #iterate for subsequent plots unless specified
 set style increment user
 
-#set domain format
+#set Uniprot domain format
 set origin 0,0.58
 set size 1,0.15
 set xtics out nomirror
@@ -75,6 +81,7 @@ set datafile missing "?"
 unset arrow
 set arrow from user_pos,-11 to user_pos,total_phen_count nohead lc rgb 'red'
 plot for [i=2:domain_gnu] data u 1:(column(i)) with lines
+
 
 set style line 10 lt 4 lw 0.5 lc rgb 'navy'
 set style line 11 lt 4 lw 1 lc rgb 'red'
@@ -110,6 +117,6 @@ het_freq = domain_gnu + 2
 hom_pos = domain_gnu + 3
 hom_freq = domain_gnu + 4
 
-plot data u het_pos:het_freq with points pt 7 title 'heterozygous', data u hom_pos:hom_freq with points pt 7 title 'homozygous'
+plot data u het_pos:het_freq pt 2 title 'heterozygous', data u hom_pos:hom_freq pt 3 title 'homozygous'
 
 #plot data u 5:6 with points pt 2 notitle, data u 7:8 with points pt 3 notitle
