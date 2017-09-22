@@ -1,4 +1,4 @@
-from api_processing import *
+from api import *
 import re, sys, subprocess, json, os
 import numpy as np
 import pandas as pd
@@ -24,7 +24,7 @@ class Graph_object():
         self.user_pos = user_pos
     	#Ensembl#############################
         self.Ens = Ensembl_api()
-        print('\nGetting Ensembl gene ID for ' + gene_name + '...\n')
+        print('\nGetting Ensembl gene ID for ' + gene_name + '...')
         self.ensembl_id = self.get_ensembl_id(gene_name)
         #Uniprot##########################
         self.Up = Uniprot_api()
@@ -33,7 +33,7 @@ class Graph_object():
         #self.plotting_file = gene_name + '_composite.data'
         self.zoomed_plot = gene_name + 'zoomed_composite.data'
         #dict of uniprot entries for this ensembl transcript
-        print('Getting Uniprot annotation file') 
+        print('Getting Uniprot annotation file...') 
         self.all_uniprot_entries = self.get_uniprot_entries(self.ensembl_id)
         #returns human reviews uniprot annotations
         self.reviewed_uniprot_entries = self.reviewed_human_entries(self.all_uniprot_entries)
@@ -47,12 +47,12 @@ class Graph_object():
         self.plottable_domains = self.generate_plottable_domains(self.length)
         
         #Exac##############################
-        print('Gathering ExAC data using Ensembl gene ID...')
+        print("Gathering ExAC data for " + self.ensembl_id + " ...")
         self.Ex = Exac_api()
         self.all_exac_variants = self.get_exac_data(self.ensembl_id)
         
         #Consurf###########################
-        print('\nGathering Consurf data stored on the server...\n')
+        print('\nGathering Consurf data stored on the server...')
         try:
             self.consurf_file = self.find_consurf_file(gene_name)
             #dict of consurf scores and position
@@ -65,7 +65,7 @@ class Graph_object():
 
         	
         #HGMD##############################
-        print('\nGathering HGMD data from website...\n')
+        print('\nGathering HGMD data from website...')
         self.hgmd_data = self.get_HGMD_data(gene_name)             
         self.write_DM_data = self.write_HGMD_data(self.DM_objs)
         self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
@@ -75,8 +75,9 @@ class Graph_object():
         #self.get_gnomad(
         
         #GNU plotter#######################
-        print('\nPlotting all data\n')
+        print('\nPlotting all data...\n')
         self.execute_gnuplot(gene_name, user_pos)
+        print("Data plotted.\n")
         #self.create_smaller_graph_file()
         #self.execute_zoomed_gnuplot(gene_name)
         
@@ -99,19 +100,22 @@ class Graph_object():
             try:
                 if entry_dict['Organism'] == 'Homo sapiens (Human)' and entry_dict['Status'] == 'reviewed':
                     human_match_list.append(entry_dict)
-                    print(human_match_list)
+                    #uniprot_revd_entry = entry_dict['Entry']
+                    #print(uniprot_revd_entry)
+                    #return uniprot_revd_entry
+                    #print(human_match_list)
             except:
-               print('Check reviewed transcript is identified. See returned list:')
-               print(human_match_list)
-               print("Try re-running script, Uniprot connection possibly failed")
+                print('Check reviewed transcript is identified. See returned list:')
+                #print(human_match_list)
+                print("Try re-running script, Uniprot connection possibly failed")
         return human_match_list
  
     #returns the gff annotation data for gene of interest
     def get_gff_domains(self):
         if len(self.reviewed_uniprot_entries) == 1:
             gff_response = self.Up.get_entry_gff(self.reviewed_uniprot_entries[0]["Entry"])
-            print(gff_response)
-            print('\nOne reviewed Uniprot entry found, connection to Uniprot successful\n')
+            #print(gff_response)
+            print('One reviewed Uniprot entry found, connection to Uniprot successful')
             return gff_response.text
         elif len(human_match_list) == 0:
             print('no_up_id_matches -- see PM1_plotter.py gff_domains')
@@ -121,14 +125,18 @@ class Graph_object():
     #filters gff data EDIT the list here to change which annotations are included
     def specific_gff_annotations(self):
         # N.B. Adding "Topological domain" will cause the script to fail
-        required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding"]
-        gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
-    	#print(self.all_gff_annotation)
-        return gff_objects
+        #required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding"]
+        try:
+            required_list = ["Beta strand", "Helix", "Domain", "Transmembrane"]
+            gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
+            #print(self.all_gff_annotation)
+            return gff_objects
+        except:
+            print("Check required_list and Uniprot gff file. Some areas of interest may need to be removed")
 
     def generate_plottable_domains(self,length):
         #length = self.reviewed_uniprot_entries[0]['Length']
-        print("Protein length: " + str(length) + " amino acids")
+        print("Uniprot canonical transcript protein length: " + str(length) + " amino acids\n")
         master_dict = {}
         domain_array = {}
         annotation_index = 0
@@ -231,6 +239,10 @@ class Graph_object():
         pass_variants = self.Ex.filter_variants(all_variants, "filter", "PASS")
         canonical_transcript = self.Ex.filter_variants(pass_variants, "CANONICAL", "YES")
         missense_only = self.Ex.filter_by_dict(canonical_transcript, filter_dict)
+        # identify canonical transcript
+        canon_trans_info = self.Ex.canonical_transcript(ensembl_id)        
+        self.exac_canon_transcript_id = canon_trans_info['gene']['canonical_transcript']
+        print("ExAC canonical transcipt ID: " + self.exac_canon_transcript_id)
         #list of homo entries
         homozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0, remove=True)
         #list of hetero entries
@@ -241,6 +253,7 @@ class Graph_object():
         exac_to_composite = self.add_exac_to_composite(het_freq_pos, indexed=False)
         exac_to_composite = self.add_exac_to_composite(homo_freq_pos)
         return all_variants
+        return exac_canon_transcript_id
     
     #indexed to indicate whether there is an index for pandas in column 0
     #uses pandas and enables column lengths to differ
@@ -275,7 +288,7 @@ class Graph_object():
             print("no file")
             cons_pos["pos"] = list(range(int(length)+1))
             del(cons_pos["pos"][0])
-            cons_pos["cons"] = [1]
+            cons_pos["cons"] = [0]
             cons_pos["cons"] = cons_pos["cons"]*int(length)
         elif consurf_file:
             with open(consurf_file, 'r') as inf:
@@ -321,7 +334,7 @@ class Graph_object():
             #separate_each_list_by returning dictionaries
             if var_class == 'DM':
                 self.DM_objs = self.phenotype_lists(var_class, objs)
-            elif var_class == 'DM?':
+            elif var_class == 'DM?':	
                 self.DM_likely_objs = self.phenotype_lists(var_class, objs)
         return variant_instances
         #write_hgmd = HGMD.write_DM_file(variant_instances)
@@ -329,8 +342,8 @@ class Graph_object():
     #Writes HGMD data into columns by phentype, separates by DM and DM? annotation
     #assigns an index number to each phentotype so they can be plotted separately without many columns in the datafile
     def write_HGMD_data(self, obj_d, DM=True):
-    	#for k,v in obj_d.items():
-    	#    print(k,v)
+        #for k,v in obj_d.items():
+        #    print(k,v)
         df = pd.read_csv(self.plotting_file, delimiter='\t', index_col=0)
         #phen_index where { phen : count }
         track = []
@@ -357,12 +370,13 @@ class Graph_object():
             df = pd.concat([df, phen_df], axis=1)
             pos_df = pd.DataFrame({'DM_Residue' : position}) 
             df = pd.concat([df, pos_df], axis=1)
-            #df.to_csv(self.plotting_file, sep='\t', na_rep=list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
-            #df.to_csv(self.plotting_file, sep='\t', na_rep="?")
+            df.to_csv(self.plotting_file, sep='\t', na_rep="?")
             #print(df)
-            #print(list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
+            #print(list(self.phen_index.keys())) # print list of phenotypes associated with gene (this prints an empty list with INSR 1157)
+            #print(list(self.phen_index.keys())[list(self.phen_index.values()).index(1)]) # print the first phenotype in the phenotype list
             #print([list(self.phen_index.values())])
             df.to_csv(self.plotting_file, sep='\t', na_rep=list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
+            #print(df)
             self.HGMD_DM_track_count = count
             self.total_phen_count = count
         elif not DM:

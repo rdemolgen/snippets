@@ -75,7 +75,12 @@ class Exac_api():
         ext = "/rest/gene/variants_in_gene/" + ensembl_id
         r = requests.get(self.server + ext, headers=self.json_headers)
         json_r = r.json()
-        #print(r.url)
+        return json_r
+    
+    def canonical_transcript(self, ensembl_id):
+        ext = "/rest/gene/" + ensembl_id
+        r = requests.get(self.server + ext, headers=self.json_headers)
+        json_r = r.json()
         return json_r
 
     def variants_in_region(self, chr, start, stop):
@@ -186,12 +191,9 @@ class HGMD_pro():
         gene_id_element = form.find("input", attrs={"name" : "gene_id"})
         gene_id_value = gene_id_element['value']
         trans_element = form.find("input", attrs={"name" : "refcore"})
-        transcript_value = trans_element['value']
-        #transcript_form = soup.find("form", attrs={"action" : "cdna.php"})
-        #transcript_id_element = form.find("input", attrs={"name" : "refcore"})
-        #transcript_id_value = transcript_id_element['value']
-        print("HGMD transcipt ID: " + transcript_value)     
-        params = {"gene" : self.gene, "inclsnp" : "N", "base" : "Z", "refcore" : transcript_value, "gene_id" : gene_id_value, "database" : "Get all mutations"}
+        HGMD_transcript_id = trans_element['value']
+        print("HGMD transcript ID: " + HGMD_transcript_id)     
+        params = {"gene" : self.gene, "inclsnp" : "N", "base" : "Z", "refcore" : HGMD_transcript_id, "gene_id" : gene_id_value, "database" : "Get all mutations"}
         url = "https://portal.biobase-international.com/hgmd/pro/all.php"
         response = browser.post(url, data=params)
         soup = BeautifulSoup(response.content)
@@ -201,13 +203,15 @@ class HGMD_pro():
         ###################################remember to un comment the above######################################################################
         
     def extract_missense_nonsense(self, all_mutations_soup):
-    	#may need to add HGMD asscession to headers when it's live
-        HGMD_headers = ["HGMD_codon_change", "amino_acid_change", "HGVS_nuc", "HGVS_prot", "var_class", "phenotype", "reference", "addiditional"]
+    	#may need to add HGMD accession to headers when it's live
+        HGMD_headers = ["HGMD_codon_change", "amino_acid_change", "HGVS_nuc", "HGVS_prot", "var_class", "phenotype","reference", "additional"]
+        HGMD_headers_legacy = ["HGMD_codon_change", "amino_acid_change", "legacy_change", "HGVS_nuc", "HGVS_prot", "var_class", "phenotype","reference", "additional"]
         HGMD_var_objs = []
         soup = all_mutations_soup
         #soup = BeautifulSoup(open("html_to_parse"), "html.parser")
         table = soup.find("table", attrs={ "class" : "gene" })
         rows = table.find_all('tr')
+        num_rows = 0
         for row in rows:
             cols = row.findAll("td")
             cols = [ele.text.strip() for ele in cols]
@@ -217,6 +221,22 @@ class HGMD_pro():
                 variant_dict = {key:value for key,value in zip(HGMD_headers, cols)}
                 var_instance = HGMD_variant(**variant_dict)
                 HGMD_var_objs.append(var_instance)
+            elif len(cols) == 9: # if a legacy naming column exists, for example gene INSR
+                variant_dict = {key:value for key,value in zip(HGMD_headers_legacy, cols)}
+                var_instance = HGMD_variant(**variant_dict)
+                HGMD_var_objs.append(var_instance)
+            elif len(cols) == 7:
+                variant_dict = {key:value for key,value in zip(HGMD_headers, cols)}
+                if 'additional' not in variant_dict:
+                	variant_dict['additional'] = 'None'
+                elif additional in variant_dict:
+                	continue
+                var_instance = HGMD_variant(**variant_dict)
+                HGMD_var_objs.append(var_instance)
+            else:
+                if num_rows != 0:
+                    print("Columns in HGMD table = " + str(len(cols)) + ". Cannot handle this many columns")
+            num_rows =+1
         return HGMD_var_objs
 
     def write_DM_file(self, variant_instance_list):

@@ -5,7 +5,7 @@ set terminal svg background rgb 'grey90' size 2000, 800
 #name of the output file
 set output svg_name
 #title at the top of the file
-set title gene_name
+set title gene_name # to include transcript from HGMD (RefSeq) exac_canon_transcript_id (ENST) and UniProt ID
 
 set lmargin at screen 0.18
 set rmargin at screen 0.95
@@ -30,19 +30,19 @@ unset y2tics
 set origin 0,0.7
 set size 1,0.3
 set arrow from user_pos,-1 to user_pos,total_phen_count nohead lc rgb 'red'
-print("domain_gnu:") 
-print domain_gnu
+#print("domain_gnu:") 
+#print domain_gnu
 DM_residue = domain_gnu + 11
-print("DM_residue:")
-print DM_residue
+#print("DM_residue:")
+#print DM_residue
 DM_track = DM_residue - 2
-print("DM_track:")
-print DM_track
+#print("DM_track:")
+#print DM_track
 DM_phen = DM_residue - 1
-print("DM_phen:")
-print DM_phen
+#print("DM_phen:")
+#print DM_phen
 
-print data
+#print data
 
 DMq_res = DM_residue + 3
 DMq_track = DM_track + 3
@@ -107,7 +107,7 @@ set format y "%.0tx10^%+03T"
 set ytics out nomirror
 set yrange [0.00001:1]
 set xlabel "Protein residue (n)"
-set ylabel "Exac all MAF" rotate by 0 offset -6
+set ylabel "Exac all MAF" rotate by 0 offset -6 #exac_canon_transcript_id
 set logscale y
 set key inside right top
 #need to feed i variable columns
