@@ -49,13 +49,14 @@ The UniProt section of plot uses the canonical transcript as identified by UniPr
 The HGMD plot uses the transcript identified by a RefSeq number on their gene page.
 
 The ExAC plot uses the canonical Ensembl transcript, which Ensembl set according to the following hierarchy: 
-  (1) Longest CCDS translation with no stop codons.
-  (2) If no (1), choose the longest Ensembl/Havana merged translation with no stop codons.
-  (3) If no (2), choose the longest translation with no stop codons.
-  (4) If no translation, choose the longest non-protein-coding transcript. 
+  - (1) Longest CCDS translation with no stop codons.
+  - (2) If no (1), choose the longest Ensembl/Havana merged translation with no stop codons.
+  - (3) If no (2), choose the longest translation with no stop codons.
+  - (4) If no translation, choose the longest non-protein-coding transcript. 
   
 So it is possible that the transcripts used to create the plots may be different. For example, when  CASR is run, it
 retrieves Ensembl transcript ENST00000498619, which is used by ExAC and is 1088 amino acids long. This transcript maps to NM_001178065 rather than NM_000388, which is the transcript that HGMD uses. The Uniprot transcript is 1078 amino acids long (the
 same length as NM_000388).
 
+The transcripts used for each section of the graph will be printed to screen.
 **The graph plotted will be based on the length of the canonical transcript as defined by Uniprot.**
