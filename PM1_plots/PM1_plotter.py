@@ -242,7 +242,7 @@ class Graph_object():
         # identify canonical transcript
         canon_trans_info = self.Ex.canonical_transcript(ensembl_id)        
         self.exac_canon_transcript_id = canon_trans_info['gene']['canonical_transcript']
-        print("ExAC canonical transcipt ID: " + self.exac_canon_transcript_id)
+        print("ExAC canonical transcript ID: " + self.exac_canon_transcript_id)
         #list of homo entries
         homozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0, remove=True)
         #list of hetero entries
