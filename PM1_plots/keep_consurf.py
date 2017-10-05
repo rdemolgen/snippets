@@ -1,6 +1,6 @@
 import os
 
-rootdir = "/home/cannons/interpretation_graphs/consurf_scores"
+rootdir = "/home/fryerv/sc_git_clone/snippets/PM1_plots/consurf_scores"
 
 for subdir, dir, files in os.walk(rootdir):
     for f in files:

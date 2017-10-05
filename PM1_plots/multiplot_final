@@ -49,6 +49,8 @@ DMq_track = DM_track + 3
 DMq_phen = DM_phen + 3
 
 set key inside right top
+set linestyle 1 lt rgb "black" lw 0.5 # set linestyle for frame around legend
+set key box linestyle 1 # add frame to legend
 plot data u DM_residue:DM_track:ytic(DM_phen) with points pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
 #plot data u DM_residue:DM_track:ytic(DM_phen) with circles title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
 

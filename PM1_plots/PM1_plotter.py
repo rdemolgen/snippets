@@ -127,7 +127,7 @@ class Graph_object():
         # N.B. Adding "Topological domain" will cause the script to fail
         #required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding"]
         try:
-            required_list = ["Beta strand", "Helix", "Domain", "Transmembrane"]
+            required_list = ["Beta strand", "Helix", "Domain", "Transmembrane", "Motif", "Region"]
             gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
             #print(self.all_gff_annotation)
             return gff_objects

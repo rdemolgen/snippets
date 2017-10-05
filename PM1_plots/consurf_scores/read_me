@@ -1,8 +1,0 @@
-#put your consurf data here as directory named as the user input gene name.
-#e.g. if you are trying to plot ABCC8, call the directory containing the ABCC8 consurf data ABCC8.
-#the data should be called consurf.grades as is output by ocnsurf. You can generate consurf
-#conservation scores here:
-
-#http://consurf.tau.ac.il/2016/
-
-
