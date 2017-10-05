@@ -243,13 +243,23 @@ class Graph_object():
         canon_trans_info = self.Ex.canonical_transcript(ensembl_id)        
         self.exac_canon_transcript_id = canon_trans_info['gene']['canonical_transcript']
         print("ExAC canonical transcript ID: " + self.exac_canon_transcript_id)
-        #list of homo entries
+        # list of homo entries
         homozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0, remove=True)
-        #list of hetero entries
-        heterozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0)
-        #dicts of homo and het frequency and position
+        # dict of homo frequency and position
         homo_freq_pos = self.Ex.position_frequency(homozygotes, homo=True)
+        # list of hetero entries
+        heterozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0)
+        # dict of het frequency and position
         het_freq_pos = self.Ex.position_frequency(heterozygotes)
+
+        # list of hemizygotes entries (if they exist)
+        try:
+            hemizygotes = self.Ex.filter_variants(missense_only, "hemi_count", 0, remove=True)
+            # dict of hemi frequency and position
+            hemi_freq_pos = self.Ex.position_frequency(hemizygotes, hemi=True)
+            #exac_to_composite = self.add_exac_to_composite(hemi_freq_pos, indexed=False)
+        except:
+            pass
         exac_to_composite = self.add_exac_to_composite(het_freq_pos, indexed=False)
         exac_to_composite = self.add_exac_to_composite(homo_freq_pos)
         return all_variants
