@@ -5,7 +5,8 @@ set terminal svg background rgb 'grey90' size 2000, 800
 #name of the output file
 set output svg_name
 #title at the top of the file
-set title gene_name # to include transcript from HGMD (RefSeq) exac_canon_transcript_id (ENST) and UniProt ID
+# to include transcript from HGMD (RefSeq) exac_canon_transcript_id (ENST) and UniProt ID in future
+set title gene_name
 
 set lmargin at screen 0.18
 set rmargin at screen 0.95
@@ -33,6 +34,7 @@ set arrow from user_pos,-1 to user_pos,total_phen_count nohead lc rgb 'red'
 #print("domain_gnu:") 
 #print domain_gnu
 DM_residue = domain_gnu + 11
+#DM_residue = domain_gnu + 13
 #print("DM_residue:")
 #print DM_residue
 DM_track = DM_residue - 2
@@ -97,7 +99,9 @@ unset xtics
 unset arrow
 set arrow from user_pos,0.00001 to user_pos,total_phen_count nohead lc rgb 'red'
 position_col = domain_gnu + 8
+#position_col = domain_gnu + 10
 cons_data = position_col - 3
+
 
 plot data u position_col:cons_data with lines ls 10 notitle
 #plot data u 12:9 with lines ls 10 notitle
@@ -118,7 +122,10 @@ het_pos = domain_gnu + 1
 het_freq = domain_gnu + 2
 hom_pos = domain_gnu + 3
 hom_freq = domain_gnu + 4
+#hemi_pos = domain_gnu + 5
+#hemi_freq = domain_gnu + 6
 
-plot data u het_pos:het_freq pt 2 title 'heterozygous', data u hom_pos:hom_freq pt 3 title 'homozygous'
-
+plot data u het_pos:het_freq pt 2 title 'Heterozygous', data u hom_pos:hom_freq pt 3 title 'Homozygous'
+#plot data u het_pos:het_freq pt 2 title 'Heterozygous', data u hom_pos:hom_freq pt 3 title 'Homozygous', data u hemi_pos:hemi_freq pt 4 title 'Hemizygous'
+ 
 #plot data u 5:6 with points pt 2 notitle, data u 7:8 with points pt 3 notitle

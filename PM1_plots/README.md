@@ -1,6 +1,7 @@
 # PM1_plots
 
 Created by Stuart Cannon s.cannon@exeter.ac.uk
+Updated and maintained by Verity Fryer verity.fryer@nhs.net
 
 This code is designed to aggregate data to contribute to the interpretation of novel variants and deduce whether said variant is in a pathogenic variation hotspot, with an absence of benign variation.
 It was written as part of a trainee project and although it produces a useful plot, there is much scope for development in terms of code structure,
@@ -43,7 +44,8 @@ Please be aware that there are some caveats to bear in mind when using PM1 plots
 
 The UniProt section of plot uses the canonical transcript as identified by UniProt, given the following criteria defined by Uniprot:
  - It is the most prevalent.
-  - It is the most similar to orthologous sequences found in other species.By virtue of its length or amino acid composition, it allows the clearest description of domains, isoforms, polymorphisms, post-translational modifications, etc.
+ - It is the most similar to orthologous sequences found in other species.
+ - By virtue of its length or amino acid composition, it allows the clearest description of domains, isoforms, polymorphisms, post-translational modifications, etc.
  - In the absence of any information, we choose the longest sequence.
 
 The HGMD plot uses the transcript identified by a RefSeq number on their gene page.
@@ -54,9 +56,7 @@ The ExAC plot uses the canonical Ensembl transcript, which Ensembl set according
   - (3) If no (2), choose the longest translation with no stop codons.
   - (4) If no translation, choose the longest non-protein-coding transcript. 
   
-So it is possible that the transcripts used to create the plots may be different. For example, when  CASR is run, it
-retrieves Ensembl transcript ENST00000498619, which is used by ExAC and is 1088 amino acids long. This transcript maps to NM_001178065 rather than NM_000388, which is the transcript that HGMD uses. The Uniprot transcript is 1078 amino acids long (the
-same length as NM_000388).
+So it is possible that the transcripts used to create the plots may be different. For example, when  CASR is run, it retrieves Ensembl transcript ENST00000498619, which is used by ExAC and is 1088 amino acids long. This transcript maps to NM_001178065 rather than NM_000388, which is the transcript that HGMD uses. The Uniprot transcript is 1078 amino acids long (the same length as NM_000388).
 
 The transcripts used for each section of the graph will be printed to screen.
 **The graph plotted will be based on the length of the canonical transcript as defined by Uniprot.**

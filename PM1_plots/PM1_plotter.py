@@ -243,25 +243,27 @@ class Graph_object():
         canon_trans_info = self.Ex.canonical_transcript(ensembl_id)        
         self.exac_canon_transcript_id = canon_trans_info['gene']['canonical_transcript']
         print("ExAC canonical transcript ID: " + self.exac_canon_transcript_id)
-        # list of homo entries
-        homozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0, remove=True)
-        # dict of homo frequency and position
-        homo_freq_pos = self.Ex.position_frequency(homozygotes, homo=True)
         # list of hetero entries
         heterozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0)
         # dict of het frequency and position
         het_freq_pos = self.Ex.position_frequency(heterozygotes)
-
+        # save het data to cmposite data file
+        exac_to_composite = self.add_exac_to_composite(het_freq_pos, indexed=False)
+        # list of homo entries
+        homozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0, remove=True)
+        # dict of homo frequency and position
+        homo_freq_pos = self.Ex.position_frequency(homozygotes, homo=True)
+        #save homo data to compsoite data file
+        exac_to_composite = self.add_exac_to_composite(homo_freq_pos)
         # list of hemizygotes entries (if they exist)
         try:
             hemizygotes = self.Ex.filter_variants(missense_only, "hemi_count", 0, remove=True)
             # dict of hemi frequency and position
             hemi_freq_pos = self.Ex.position_frequency(hemizygotes, hemi=True)
-            #exac_to_composite = self.add_exac_to_composite(hemi_freq_pos, indexed=False)
-        except:
+            # save hemi data to composite data file
+            exac_to_composite = self.add_exac_to_composite(hemi_freq_pos)
+        except: 
             pass
-        exac_to_composite = self.add_exac_to_composite(het_freq_pos, indexed=False)
-        exac_to_composite = self.add_exac_to_composite(homo_freq_pos)
         return all_variants
         return exac_canon_transcript_id
     
@@ -510,6 +512,7 @@ class Graph_object():
         gene_name = self.construct_gnuplot_command("gene_name", gene_name)
         data = self.construct_gnuplot_command("data", self.plotting_file)
         if self.domain_count == 0:
+            print("No Uniprot domains to plot")
             domain_count = self.construct_gnuplot_command("domain_count", "1")
         else:
             domain_count = self.construct_gnuplot_command("domain_count", str(self.domain_count))
@@ -545,6 +548,7 @@ class Graph_object():
 
     #inital method to create a zoomed in data file for plotting with an additional gnuplot script
     def create_smaller_graph_file(self):
+        print("create_smaller_graph function in use")
         #read in dataframe from file.data
         df = pd.read_csv(self.plotting_file, delimiter='\t', index_col=0)
         #extract columns into new dataframe; domains based on n columns from start, "cons", "cons_MA", "cons_cumsum"
@@ -562,18 +566,21 @@ class Graph_object():
         
     	
     def columns_in_range(self, df_sliced, df_whole, columns):    
+        print("columns_in_range function in use")
     	#drop unwanted_columns
-    	df_other = df_whole.drop(columns, axis=1)
+        df_other = df_whole.drop(columns, axis=1)
     	#return columns of interest
-    	exac_het_df = self.df_filter_columns(df_other, ["het_pos", "het_freq"], "het_pos")
-    	df_sliced = pd.concat([df_sliced, exac_het_df], axis=1) 	
-    	exac_hom_df = self.df_filter_columns(df_other, ["homo_pos", "homo_freq"], "homo_pos")
-    	df_sliced = pd.concat([df_sliced, exac_hom_df], axis=1)
-    	DM_df = self.df_filter_columns(df_other, ["DM_track", "DM_phenotype", "DM_Residue"], "DM_Residue")
-    	df_sliced = pd.concat([df_sliced, DM_df], axis=1)
-    	DMq_df = self.df_filter_columns(df_other, ["DMq_track", "DMq_phenotype", "DM_qResidue"], "DM_qResidue")
-    	df_sliced = pd.concat([df_sliced, DMq_df], axis=1)
-    	df_sliced.to_csv(self.zoomed_plot, sep='\t', na_rep='?')
+        exac_het_df = self.df_filter_columns(df_other, ["het_pos", "het_freq"], "het_pos")
+        df_sliced = pd.concat([df_sliced, exac_het_df], axis=1) 	
+        exac_hom_df = self.df_filter_columns(df_other, ["homo_pos", "homo_freq"], "homo_pos")
+        df_sliced = pd.concat([df_sliced, exac_hom_df], axis=1)
+        #exac_hemi_df = self.df_filter_columns(df_other, ["hemi_pos", "hemi_freq"], "hemi_pos")
+  	#df_sliced = pd.concat([df_sliced, exac_hemi_df], axis=1)       
+        DM_df = self.df_filter_columns(df_other, ["DM_track", "DM_phenotype", "DM_Residue"], "DM_Residue")
+       	df_sliced = pd.concat([df_sliced, DM_df], axis=1)
+        DMq_df = self.df_filter_columns(df_other, ["DMq_track", "DMq_phenotype", "DM_qResidue"], "DM_qResidue")
+        df_sliced = pd.concat([df_sliced, DMq_df], axis=1)
+        df_sliced.to_csv(self.zoomed_plot, sep='\t', na_rep='?')
     	
     def df_filter_columns(self, df, include_list, column_name):
         filtered_df = df.filter(include_list, axis=1)
