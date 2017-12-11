@@ -52,8 +52,10 @@ DMq_phen = DM_phen + 3
 
 set key inside right top
 set linestyle 1 lt rgb "black" lw 0.5 # set linestyle for frame around legend
-set key box linestyle 1 # add frame to legend
-plot data u DM_residue:DM_track:ytic(DM_phen) with points pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
+set key horizontal box linestyle 1 # add frame to legend
+plot data u DM_residue:DM_track:ytic(DM_phen) pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) pt 2 title 'DM?'
+# N.B. pt 2 = cross, pt 3 = star, pt 7 = filled circle
+
 #plot data u DM_residue:DM_track:ytic(DM_phen) with circles title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
 
 #plot data u 15:13:ytic(14) with points pt 2 title 'DM', data u 18:16:ytic(17) with points pt 4 title 'DMq'
@@ -115,7 +117,7 @@ set yrange [0.00001:1]
 set xlabel "Protein residue (n)"
 set ylabel "Exac all MAF" rotate by 0 offset -6 #exac_canon_transcript_id
 set logscale y
-set key inside right top
+set key horizontal inside right top
 #need to feed i variable columns
 
 het_pos = domain_gnu + 1
