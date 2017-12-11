@@ -126,9 +126,8 @@ class Graph_object():
     def specific_gff_annotations(self):
         # N.B. Adding "Topological domain" will cause the script to fail
         #required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding"]
-        # N.B. if a feature reaches to the very end of the protein (i.e. position 230 out of 230 amino acids), this may not plot correctly therefore the feature should be omitted form this list
         try:
-            required_list = ["Beta strand", "Helix", "Domain", "Transmembrane", "Motif", "Region"]
+            required_list = ["Beta strand", "Domain", "Helix", "Transmembrane", "Motif", "Region"]
             gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
             #print(self.all_gff_annotation)
             return gff_objects
@@ -148,11 +147,16 @@ class Graph_object():
                 master_dict[item.__dict__['anno_type']].append(item.__dict__)
             else:
                 master_dict[item.__dict__['anno_type']] = [item.__dict__]
-        for k in master_dict.keys(): # k represents each of the plottable domains found e.f. transmembrane, helix etc. from required_list
+        for k in master_dict.keys(): # k represents each of the plottable domains found e.g. transmembrane, helix etc. from required_list
             self.uniprot_columns.append(k)
             annotation_index += 1
             #function to return the array on NA or integer
             this_type_column = self.array_creator(master_dict, k, annotation_index, length)
+            if len(this_type_column) == int(length)+1:
+                this_type_column = this_type_column[:-1]
+            elif len(this_type_column) > int(length)+1:
+                print("Domain feature exceeds length of protein by more than one amino acid. program will close")
+                sys.exit                
             np_array = np.array(this_type_column, dtype=np.float)
             arrays_to_save.append(np_array)
         result_array = np.empty((0, int(length)))
