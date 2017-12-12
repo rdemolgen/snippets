@@ -36,7 +36,10 @@ class Graph_object():
         print('Getting Uniprot annotation file...') 
         self.all_uniprot_entries = self.get_uniprot_entries(self.ensembl_id)
         #returns human reviews uniprot annotations
-        self.reviewed_uniprot_entries = self.reviewed_human_entries(self.all_uniprot_entries)
+        self.reviewed_uniprot_entries = self.reviewed_human_entries(self.all_uniprot_entries) 
+        ## N.B. Failure of the script at this point may be due to lack of connection to Uniprot
+        ##Traceback (most recent call last):  File "PM1_plotter.py", line 41, in __init__ self.length = self.reviewed_uniprot_entries[0]['Length'] IndexError: list index out of range
+        ## Try running script again
         ##print(self.reviewed_uniprot_entries)
         self.length = self.reviewed_uniprot_entries[0]['Length']
         #returns text of all gff annotations
