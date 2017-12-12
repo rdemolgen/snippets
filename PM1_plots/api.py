@@ -158,13 +158,15 @@ class HGMD_pro():
     def __init__(self, gene_name):
         self.gene = gene_name
 
-    def scrape_HGMD_all_mutations(self):
+    def scrape_HGMD_all_mutations(self,hgmd_username,hgmd_password):
         browser = mechanicalsoup.Browser()
         login_page = browser.get("http://portal.biobase-international.com/cgi-bin/portal/login.cgi")
         time.sleep(1)
         login_form = mechanicalsoup.Form(login_page.soup.select_one('#login_form'))
         time.sleep(2)
-        login_form.input({"login" : "rdemolgen", "password" : "rdemolgen"})
+        # login username and user_password required as strings
+        #login_form.input({"login" : "username", "password" : "user_password"})
+        login_form.input({"login" : hgmd_username, "password" : hgmd_password})
         time.sleep(2)
         r = browser.submit(login_form, login_page.url)
         ##print(r.text)
@@ -178,7 +180,9 @@ class HGMD_pro():
             time.sleep(1)
             login_form = mechanicalsoup.Form(login_page.soup.select_one('#login_form'))
             time.sleep(2)
-            login_form.input({"login" : "rdemolgen", "password" : "rdemolgen"})
+            # login username and user_password required as strings
+            #login_form.input({"login" : "username", "password" : "user_password"})
+            login_form.input({"login" : hgmd_username, "password" : hgmd_password})
             time.sleep(2)
             r = browser.submit(login_form, login_page.url)
             soup = self.form_finder(browser, sys.argv[3])
