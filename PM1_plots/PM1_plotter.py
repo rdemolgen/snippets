@@ -19,6 +19,9 @@ class Graph_object():
     slice_start = 0
     slice_end = 0
 	
+	hgmd_username = input("Enter HGMD Pro licence username: ")
+	hgmd_password = input("Enter HGMD Pro licence password: ")
+	
     def __init__(self, gene_name, user_pos):
         self.gene = gene_name
         self.user_pos = user_pos
@@ -343,7 +346,7 @@ class Graph_object():
 ### HGMD data  ###################################################################
     def get_HGMD_data(self, gene_name):
         HGMD = HGMD_pro(gene_name)
-        all_mutations_soup = HGMD.scrape_HGMD_all_mutations()
+        all_mutations_soup = HGMD.scrape_HGMD_all_mutations(hgmd_username,hgmd_password)
         #list of objects
         variant_instances = HGMD.extract_missense_nonsense(all_mutations_soup)
         #for i in variant_instances:
