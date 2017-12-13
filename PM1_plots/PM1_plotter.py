@@ -6,6 +6,9 @@ from collections import defaultdict
 
 #the purpose of this class is to model and collect the data required of a plot and then write to a file for retention and subsequent plotting
 
+hgmd_username = input("\nEnter HGMD Pro licence username: ")
+hgmd_password = input("Enter HGMD Pro licence password: ")
+
 class Graph_object():
 	
     DM_likely_objs = {}
@@ -19,13 +22,13 @@ class Graph_object():
     slice_start = 0
     slice_end = 0
 	
-	hgmd_username = input("Enter HGMD Pro licence username: ")
-	hgmd_password = input("Enter HGMD Pro licence password: ")
-	
     def __init__(self, gene_name, user_pos):
         self.gene = gene_name
         self.user_pos = user_pos
-    	#Ensembl#############################
+        self.hgmd_username = hgmd_username
+        self.hgmd_password = hgmd_password
+
+   	#Ensembl#############################
         self.Ens = Ensembl_api()
         print('\nGetting Ensembl gene ID for ' + gene_name + '...')
         self.ensembl_id = self.get_ensembl_id(gene_name)
