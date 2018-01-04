@@ -174,19 +174,19 @@ class HGMD_pro():
         try:
             soup = self.form_finder(browser, self.gene)
         except:
-            print('HGMD exception executed')
-            browser = mechanicalsoup.Browser()
-            login_page = browser.get("http://portal.biobase-international.com/cgi-bin/portal/login.cgi")
-            time.sleep(1)
-            login_form = mechanicalsoup.Form(login_page.soup.select_one('#login_form'))
-            time.sleep(2)
-            # login username and user_password required as strings
-            #login_form.input({"login" : "username", "password" : "user_password"})
-            login_form.input({"login" : hgmd_username, "password" : hgmd_password})
-            time.sleep(2)
-            r = browser.submit(login_form, login_page.url)
-            soup = self.form_finder(browser, sys.argv[3])
-            print(soup)
+            print("\nHGMD exception executed")
+            print("Check HGMD username and password are correct and try again\n")
+            sys.exit()
+#            browser = mechanicalsoup.Browser()
+#            login_page = browser.get("http://portal.biobase-international.com/cgi-bin/portal/login.cgi")
+#            time.sleep(1)
+#            login_form = mechanicalsoup.Form(login_page.soup.select_one('#login_form'))
+#            time.sleep(2)
+#            login_form.input({"login" : hgmd_username, "password" : hgmd_password})
+#            time.sleep(2)
+#            r = browser.submit(login_form, login_page.url)
+#            soup = self.form_finder(browser, sys.argv[3])
+#            print(soup)
         return soup
       
     def form_finder(self, browser, gene):
