@@ -76,10 +76,14 @@ class Graph_object():
         #HGMD##############################
         print('\nGathering HGMD data from website...')
         self.hgmd_data = self.get_HGMD_data(gene_name)             
-        self.write_DM_data = self.write_HGMD_data(self.DM_objs)
-        self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
-        
-        
+        if self.DM_objs == {} and self.DM_likely_objs == {}:
+            print("No variants found in HGMD")
+        elif self.DM_objs == {}:
+            self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
+        else:
+            self.write_DM_data = self.write_HGMD_data(self.DM_objs)
+            self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
+
         #Gnomad_data######################
         #self.get_gnomad(
         
@@ -133,15 +137,19 @@ class Graph_object():
 
     #filters gff data EDIT the list here to change which annotations are included
     def specific_gff_annotations(self):
-        # N.B. Adding "Topological domain" will cause the script to fail
-        #required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding"]
+        # Possible options to add the required_list include:
+        #required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
+        # Adding "Topological domain" causes the script to fail
         try:
-            required_list = ["Beta strand", "Domain", "Helix", "Transmembrane", "Motif", "Region"]
+            required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
             gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
-            #print(self.all_gff_annotation)
-            return gff_objects
+            if len(gff_objects) <1:
+                sys.exit()
+            else:
+                return gff_objects
         except:
-            print("Check required_list and Uniprot gff file. Some areas of interest may need to be removed")
+            print("\nNo specified domains in required list found in GFF file. \n\nCheck required_list and Uniprot gff file. Some areas of interest may need to be removed\n")
+            sys.exit()
 
     def generate_plottable_domains(self,length):
         #length = self.reviewed_uniprot_entries[0]['Length']
@@ -353,8 +361,7 @@ class Graph_object():
         #list of objects
         variant_instances = HGMD.extract_missense_nonsense(all_mutations_soup)
         #for i in variant_instances:
-           #print(i.__dict__)
-        #returns dict of mutation class and list of objects in that class
+           #print(i.__dict__) #returns dict of mutation class and list of objects in that class
         separate_var_class = self.var_class_separator(variant_instances)
         for var_class,objs in separate_var_class.items():
             #separate_each_list_by returning dictionaries
@@ -398,7 +405,7 @@ class Graph_object():
             df = pd.concat([df, pos_df], axis=1)
             df.to_csv(self.plotting_file, sep='\t', na_rep="?")
             #print(df)
-            #print(list(self.phen_index.keys())) # print list of phenotypes associated with gene (this prints an empty list with INSR 1157)
+            #print(list(self.phen_index.keys())) # print list of phenotypes associated with a gene
             #print(list(self.phen_index.keys())[list(self.phen_index.values()).index(1)]) # print the first phenotype in the phenotype list
             #print([list(self.phen_index.values())])
             df.to_csv(self.plotting_file, sep='\t', na_rep=list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
