@@ -136,6 +136,7 @@ class Graph_object():
             print('More than 1 reviewed human Uniprot transcript entry PM1_plotter.py gff_domains')
 
     #filters gff data EDIT the list here to change which annotations are included
+    # N.B. adding too many areas of interest may cause the plot to become too crowded
     def specific_gff_annotations(self):
         # Possible options to add the required_list include:
         #required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
