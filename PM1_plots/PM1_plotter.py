@@ -266,19 +266,26 @@ class Graph_object():
         canon_trans_info = self.Ex.canonical_transcript(ensembl_id)        
         self.exac_canon_transcript_id = canon_trans_info['gene']['canonical_transcript']
         print("ExAC canonical transcript ID: " + self.exac_canon_transcript_id)
+
         # list of hetero entries
         heterozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0)
         # dict of het frequency and position
         het_freq_pos = self.Ex.position_frequency(heterozygotes)
+        print("Het:")
+        print(het_freq_pos)
         # save het data to cmposite data file
         exac_to_composite = self.add_exac_to_composite(het_freq_pos, indexed=False)
-        # list of homo entries
+
+        # list of homozygous entries
         homozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0, remove=True)
-        # dict of homo frequency and position
-        homo_freq_pos = self.Ex.position_frequency(homozygotes, homo=True)
-        #save homo data to compsoite data file
-        exac_to_composite = self.add_exac_to_composite(homo_freq_pos)
-        # list of hemizygotes entries (if they exist)
+        # dict of homozygous frequency and position
+        hom_freq_pos = self.Ex.position_frequency(homozygotes, hom=True)
+        print("Hom:")
+        print(hom_freq_pos)
+        #save hom data to compsoite data file
+        exac_to_composite = self.add_exac_to_composite(hom_freq_pos)
+
+        # list of hemi entries (if they exist)
         #try:
         #    hemizygotes = self.Ex.filter_variants(missense_only, "hemi_count", 0, remove=True)
         #    # dict of hemi frequency and position
@@ -287,6 +294,7 @@ class Graph_object():
         #    exac_to_composite = self.add_exac_to_composite(hemi_freq_pos)
         #except: 
         #    pass
+
         return all_variants
         return exac_canon_transcript_id
     
@@ -594,7 +602,7 @@ class Graph_object():
     	#return columns of interest
         exac_het_df = self.df_filter_columns(df_other, ["het_pos", "het_freq"], "het_pos")
         df_sliced = pd.concat([df_sliced, exac_het_df], axis=1) 	
-        exac_hom_df = self.df_filter_columns(df_other, ["homo_pos", "homo_freq"], "homo_pos")
+        exac_hom_df = self.df_filter_columns(df_other, ["hom_pos", "hom_freq"], "hom_pos")
         df_sliced = pd.concat([df_sliced, exac_hom_df], axis=1)
         #exac_hemi_df = self.df_filter_columns(df_other, ["hemi_pos", "hemi_freq"], "hemi_pos")
   	#df_sliced = pd.concat([df_sliced, exac_hemi_df], axis=1)       

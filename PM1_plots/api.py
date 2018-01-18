@@ -119,9 +119,9 @@ class Exac_api():
                     iteration_list.append(this_filter)
         return iteration_list[-1]
 
-    def position_frequency(self, var_list, homo=False, hemi=False):
-        if homo==True:
-            var_freq_pos_dict = self.dict_extractor('homo_freq', 'homo_pos', var_list)
+    def position_frequency(self, var_list, hom=False, hemi=False):
+        if hom==True:
+            var_freq_pos_dict = self.dict_extractor('hom_freq', 'hom_pos', var_list)
         elif hemi==True:
             var_freq_pos_dict = self.dict_extractor('hemi_freq', 'hemi_pos', var_list)
         else:
