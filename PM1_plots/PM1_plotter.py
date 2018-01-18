@@ -173,8 +173,8 @@ class Graph_object():
             if len(this_type_column) == int(length)+1:
                 this_type_column = this_type_column[:-1]
             elif len(this_type_column) > int(length)+1:
-                print("Domain feature exceeds length of protein by more than one amino acid. program will close")
-                sys.exit                
+                print("Domain feature exceeds length of protein by more than one amino acid. Program will now close")
+                sys.exit()
             np_array = np.array(this_type_column, dtype=np.float)
             arrays_to_save.append(np_array)
         result_array = np.empty((0, int(length)))
