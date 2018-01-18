@@ -139,10 +139,10 @@ class Graph_object():
     # N.B. adding too many areas of interest may cause the plot to become too crowded
     def specific_gff_annotations(self):
         # Possible options to add the required_list include:
-        #required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
+        #required_list = ["Beta strand", "Helix", "Turn", "Repeat","Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
         # Adding "Topological domain" causes the script to fail
         try:
-            required_list = ["Beta strand", "Helix", "Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
+            required_list = ["Repeat", "Domain", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
             gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
             if len(gff_objects) <1:
                 sys.exit()
@@ -173,7 +173,7 @@ class Graph_object():
             if len(this_type_column) == int(length)+1:
                 this_type_column = this_type_column[:-1]
             elif len(this_type_column) > int(length)+1:
-                print("Domain feature exceeds length of protein by more than one amino acid. Program will now close")
+                print(k + " feature exceeds length of protein by more than one amino acid. Program will now close")
                 sys.exit()
             np_array = np.array(this_type_column, dtype=np.float)
             arrays_to_save.append(np_array)
@@ -279,14 +279,14 @@ class Graph_object():
         #save homo data to compsoite data file
         exac_to_composite = self.add_exac_to_composite(homo_freq_pos)
         # list of hemizygotes entries (if they exist)
-        try:
-            hemizygotes = self.Ex.filter_variants(missense_only, "hemi_count", 0, remove=True)
-            # dict of hemi frequency and position
-            hemi_freq_pos = self.Ex.position_frequency(hemizygotes, hemi=True)
-            # save hemi data to composite data file
-            exac_to_composite = self.add_exac_to_composite(hemi_freq_pos)
-        except: 
-            pass
+        #try:
+        #    hemizygotes = self.Ex.filter_variants(missense_only, "hemi_count", 0, remove=True)
+        #    # dict of hemi frequency and position
+        #    hemi_freq_pos = self.Ex.position_frequency(hemizygotes, hemi=True)
+        #    # save hemi data to composite data file
+        #    exac_to_composite = self.add_exac_to_composite(hemi_freq_pos)
+        #except: 
+        #    pass
         return all_variants
         return exac_canon_transcript_id
     
