@@ -1,5 +1,5 @@
 from api import *
-import re, sys, subprocess, json, os, getpass
+import re, sys, subprocess, json, os
 import numpy as np
 import pandas as pd
 from collections import defaultdict
@@ -7,7 +7,7 @@ from collections import defaultdict
 #the purpose of this class is to model and collect the data required of a plot and then write to a file for retention and subsequent plotting
 
 hgmd_username = input("\nEnter HGMD Pro licence username: ")
-hgmd_password = getpass.getpass(prompt="Enter HGMD Pro licence password (hidden): ")
+hgmd_password = input("Enter HGMD Pro licence password: ")
 
 class Graph_object():
 	
