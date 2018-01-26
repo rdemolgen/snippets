@@ -4,8 +4,8 @@ from bs4 import BeautifulSoup
 class Uniprot_api():
 
     def __init__(self):
-        self.upload_ext = 'http://www.uniprot.org/uploadlists/'
-        self.entry_ext = 'http://www.uniprot.org/uniprot/'
+        self.upload_ext = 'https://www.uniprot.org/uploadlists/'
+        self.entry_ext = 'https://www.uniprot.org/uniprot/'
 
     #given an ensembl_id returns the uniprot responses as a list of dictionaries
     def get_pid_from_gene(self, ensembl_id):
@@ -89,7 +89,24 @@ class Exac_api():
         json_r = r.json()
         return json_r
 
-   #filters variants in gene with a given key and value. keep or remove option
+    # update each variant entry with het_count and hemi_count(where applicable)
+    def update_variant(self, variant_list):
+        for variant in variant_list:
+            try:
+                variant['het_count'] = variant["allele_count"]-(variant["hom_count"]+variant["hemi_count"])
+                variant['hemi_freq'] = variant['hemi_count']/variant['allele_num']
+                variant['het_freq'] = variant['het_count']/variant['allele_num'] 
+                try:
+                    variant['hom_freq'] = variant['hom_count']/variant['allele_num']
+                except:
+                    pass
+            except:
+                variant['het_count'] = variant["allele_count"]-variant["hom_count"]
+                variant['het_freq'] = variant['het_count']/variant['allele_num'] 
+                variant['hom_freq'] = variant['hom_count']/variant['allele_num']
+        return variant_list
+
+    #filters variants in gene with a given key and value. keep or remove option
     def filter_variants(self, variant_list, key, value, remove=False):
         pass_vars = []
         for variant in variant_list:
@@ -119,20 +136,25 @@ class Exac_api():
                     iteration_list.append(this_filter)
         return iteration_list[-1]
 
-    def position_frequency(self, var_list, homo=False, hemi=False):
-        if homo==True:
-            var_freq_pos_dict = self.dict_extractor('homo_freq', 'homo_pos', var_list)
+    def position_frequency(self, var_list, hom=False, hemi=False):
+        if hom==True:
+            var_freq_pos_dict = self.dict_extractor('hom_freq', 'hom_pos', var_list, hom=True)
         elif hemi==True:
-            var_freq_pos_dict = self.dict_extractor('hemi_freq', 'hemi_pos', var_list)
+            var_freq_pos_dict = self.dict_extractor('hemi_freq', 'hemi_pos', var_list, hemi=True)
         else:
             var_freq_pos_dict = self.dict_extractor('het_freq', 'het_pos', var_list)
         return var_freq_pos_dict
 
-    def dict_extractor(self, freq_key, pos_key, var_list):
+    def dict_extractor(self, freq_key, pos_key, var_list, hom=False, hemi=False):
         freq_pos = { freq_key : [],
                      pos_key : []}
         for variant_dict in var_list:
-            freq_pos[freq_key].append(variant_dict["allele_freq"])
+            if hom==True:
+                freq_pos[freq_key].append(variant_dict["hom_freq"])
+            elif hemi==True:
+                freq_pos[freq_key].append(variant_dict["hemi_freq"])
+            else:
+                freq_pos[freq_key].append(variant_dict["het_freq"])
             freq_pos[pos_key].append(self.extract_protein_position(variant_dict["HGVSp"]))
         return freq_pos
 
@@ -148,7 +170,6 @@ class Exac_api():
 
 #creates class based on key, value **kwargs
 class HGMD_variant():
-    
     def __init__(self, **entries):
         self.__dict__.update(entries)
 
@@ -161,32 +182,20 @@ class HGMD_pro():
     def scrape_HGMD_all_mutations(self,hgmd_username,hgmd_password):
         browser = mechanicalsoup.Browser()
         login_page = browser.get("http://portal.biobase-international.com/cgi-bin/portal/login.cgi")
-        time.sleep(1)
+        time.sleep(2)
         login_form = mechanicalsoup.Form(login_page.soup.select_one('#login_form'))
         time.sleep(2)
         # login username and user_password required as strings
-        #login_form.input({"login" : "username", "password" : "user_password"})
         login_form.input({"login" : hgmd_username, "password" : hgmd_password})
         time.sleep(2)
         r = browser.submit(login_form, login_page.url)
-        ##print(r.text)
-        time.sleep(1)
+        time.sleep(2)
         try:
             soup = self.form_finder(browser, self.gene)
         except:
             print("\nHGMD exception executed")
-            print("Check HGMD username and password are correct and try again\n")
+            print("Check HGMD username and password are correct and try again.\nAlternatively check you are not already logged in to HGMD with a web browser:\nhttps://portal.biobase-international.com/cgi-bin/portal/login.cgi\n")
             sys.exit()
-#            browser = mechanicalsoup.Browser()
-#            login_page = browser.get("http://portal.biobase-international.com/cgi-bin/portal/login.cgi")
-#            time.sleep(1)
-#            login_form = mechanicalsoup.Form(login_page.soup.select_one('#login_form'))
-#            time.sleep(2)
-#            login_form.input({"login" : hgmd_username, "password" : hgmd_password})
-#            time.sleep(2)
-#            r = browser.submit(login_form, login_page.url)
-#            soup = self.form_finder(browser, sys.argv[3])
-#            print(soup)
         return soup
       
     def form_finder(self, browser, gene):
@@ -203,7 +212,7 @@ class HGMD_pro():
         url = "https://portal.biobase-international.com/hgmd/pro/all.php"
         response = browser.post(url, data=params)
         soup = BeautifulSoup(response.content)
-        #print(soup)
+        response.close()
         return soup
         
         ###################################remember to un comment the above######################################################################

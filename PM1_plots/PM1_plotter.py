@@ -7,7 +7,7 @@ from collections import defaultdict
 #the purpose of this class is to model and collect the data required of a plot and then write to a file for retention and subsequent plotting
 
 hgmd_username = input("\nEnter HGMD Pro licence username: ")
-hgmd_password = getpass.getpass(prompt="Enter HGMD Pro licence password: ")
+hgmd_password = getpass.getpass(prompt="Enter HGMD Pro licence password (hidden): ")
 
 class Graph_object():
 	
@@ -58,21 +58,17 @@ class Graph_object():
         #Exac##############################
         print("Gathering ExAC data for " + self.ensembl_id + " ...")
         self.Ex = Exac_api()
-        self.all_exac_variants = self.get_exac_data(self.ensembl_id)
+        self.all_exac_variants,self.chrom = self.get_exac_data(self.ensembl_id)
         
         #Consurf###########################
         print('\nGathering Consurf data stored on the server...')
         try:
             self.consurf_file = self.find_consurf_file(gene_name)
-            #dict of consurf scores and position
         except:
             self.consurf_file = "no_file"
-            print("No Consurf data available in consurf_outputs\n")  
         self.consurf_data = self.parse_consurf_grades(self.consurf_file, self.length)
-        #dataframe of all data
         self.write_consurf_data = self.write_consurf_grades(self.consurf_data)
 
-        	
         #HGMD##############################
         print('\nGathering HGMD data from website...')
         self.hgmd_data = self.get_HGMD_data(gene_name)             
@@ -85,11 +81,15 @@ class Graph_object():
             self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
 
         #Gnomad_data######################
-        #self.get_gnomad(
         
         #GNU plotter#######################
         print('\nPlotting all data...\n')
-        self.execute_gnuplot(gene_name, user_pos)
+        if self.chrom=='X':
+            self.execute_gnuplot(gene_name, user_pos, self.chrom, hemi=True)
+        elif self.chrom=='Y':
+            self.execute_gnuplot(gene_name, user_pos, self.chrom, chrY=True)
+        else:
+            self.execute_gnuplot(gene_name, user_pos, self.chrom)
         print("Data plotted.\n")
         #self.create_smaller_graph_file()
         #self.execute_zoomed_gnuplot(gene_name)
@@ -118,9 +118,9 @@ class Graph_object():
                     #return uniprot_revd_entry
                     #print(human_match_list)
             except:
-                print('Check reviewed transcript is identified. See returned list:')
-                #print(human_match_list)
-                print("Try re-running script, Uniprot connection possibly failed")
+                print('Check reviewed transcript is identified:')
+                print(human_match_list)
+                print('Check gene name at www.uniprot.org and/or try re-running script, as Uniprot connection possibly failed')
         return human_match_list
  
     #returns the gff annotation data for gene of interest
@@ -142,7 +142,7 @@ class Graph_object():
         #required_list = ["Beta strand", "Helix", "Turn", "Repeat","Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
         # Adding "Topological domain" causes the script to fail
         try:
-            required_list = ["Repeat", "Domain", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
+            required_list = ["Repeat", "Domain", "Transmembrane", "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
             gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
             if len(gff_objects) <1:
                 sys.exit()
@@ -173,7 +173,7 @@ class Graph_object():
             if len(this_type_column) == int(length)+1:
                 this_type_column = this_type_column[:-1]
             elif len(this_type_column) > int(length)+1:
-                print(k + " feature exceeds length of protein by more than one amino acid. Program will now close")
+                print(k + " feature exceeds length of protein by more than one amino acid or multiple " + k + " features overlap. Program will now close")
                 sys.exit()
             np_array = np.array(this_type_column, dtype=np.float)
             arrays_to_save.append(np_array)
@@ -266,29 +266,36 @@ class Graph_object():
         canon_trans_info = self.Ex.canonical_transcript(ensembl_id)        
         self.exac_canon_transcript_id = canon_trans_info['gene']['canonical_transcript']
         print("ExAC canonical transcript ID: " + self.exac_canon_transcript_id)
-        # list of hetero entries
-        heterozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0)
+        self.chrom = canon_trans_info['gene']['chrom']
+        updated_missense_only = self.Ex.update_variant(missense_only)        
+
+        # list of heterozygous entries
+        heterozygotes = self.Ex.filter_variants(updated_missense_only, "het_count", 0, remove=True)
         # dict of het frequency and position
         het_freq_pos = self.Ex.position_frequency(heterozygotes)
         # save het data to cmposite data file
         exac_to_composite = self.add_exac_to_composite(het_freq_pos, indexed=False)
-        # list of homo entries
-        homozygotes = self.Ex.filter_variants(missense_only, "hom_count", 0, remove=True)
-        # dict of homo frequency and position
-        homo_freq_pos = self.Ex.position_frequency(homozygotes, homo=True)
-        #save homo data to compsoite data file
-        exac_to_composite = self.add_exac_to_composite(homo_freq_pos)
+
+        # list of homozygous entries (if they exist - not available on Y chromosome records)
+        try:
+            homozygotes = self.Ex.filter_variants(updated_missense_only, "hom_count", 0, remove=True)
+            # dict of hom frequency and position
+            hom_freq_pos = self.Ex.position_frequency(homozygotes, hom=True)
+            #save homozygous data to composite data file
+            exac_to_composite = self.add_exac_to_composite(hom_freq_pos)
+        except:
+            pass
+
         # list of hemizygotes entries (if they exist)
-        #try:
-        #    hemizygotes = self.Ex.filter_variants(missense_only, "hemi_count", 0, remove=True)
-        #    # dict of hemi frequency and position
-        #    hemi_freq_pos = self.Ex.position_frequency(hemizygotes, hemi=True)
-        #    # save hemi data to composite data file
-        #    exac_to_composite = self.add_exac_to_composite(hemi_freq_pos)
-        #except: 
-        #    pass
-        return all_variants
-        return exac_canon_transcript_id
+        try:
+            hemizygotes = self.Ex.filter_variants(updated_missense_only, "hemi_count", 0, remove=True)
+            # dict of hemi frequency and position
+            hemi_freq_pos = self.Ex.position_frequency(hemizygotes, hemi=True)
+            # save hemi data to composite data file
+            exac_to_composite = self.add_exac_to_composite(hemi_freq_pos)
+        except: 
+            pass
+        return (all_variants,self.chrom)
     
     #indexed to indicate whether there is an index for pandas in column 0
     #uses pandas and enables column lengths to differ
@@ -310,9 +317,7 @@ class Graph_object():
         base = "consurf_scores/"
         for dirs, subdirs, files in os.walk(base):
             if dirs.endswith(gene_name):
-                #print(os.path.join(dirs, files[0]))
                 return os.path.join(dirs, files[0])
-
 
     #excludes consurf scores marked with * to indicate low confidence
     def parse_consurf_grades(self, consurf_file, length):
@@ -320,7 +325,6 @@ class Graph_object():
     	             "pos" : []}
     	# consurf.grades file for gene does not exist in consurf_outputs folder, create mock file
         if consurf_file == "no_file":
-            print("no file")
             cons_pos["pos"] = list(range(int(length)+1))
             del(cons_pos["pos"][0])
             cons_pos["cons"] = [0]
@@ -337,9 +341,6 @@ class Graph_object():
                             cons_pos["cons"].append(0)
                         else:
                             cons_pos["cons"].append(spl[4].strip(' '))      		
-        #print(cons_pos)
-        #print(len(cons_pos['cons']))
-        #print(len(cons_pos['pos']))
         return cons_pos                        	      
 
     #opens data, creates a new df with conservation, running mean and cumulative mean.
@@ -525,14 +526,14 @@ class Graph_object():
         subprocess.call(gnuplot_command)
         
     #call gnuplot script
-    def execute_gnuplot(self, gene_name, user_pos):
-        #print(len(self.plottable_domains))
+    def execute_gnuplot(self, gene_name, user_pos, chrom, hemi=False, chrY=False):
         adjusted_length = int(self.length)
         svg_name_string = gene_name + '_composite_' + user_pos + '.svg'
         svg_name = self.construct_gnuplot_command("svg_name", svg_name_string)
         x_length = self.construct_gnuplot_command("x_length" , str(adjusted_length))
         gene_name = self.construct_gnuplot_command("gene_name", gene_name)
         data = self.construct_gnuplot_command("data", self.plotting_file)
+        chrom = self.construct_gnuplot_command("chrom", chrom)
         if self.domain_count == 0:
             print("No Uniprot domains to plot")
             domain_count = self.construct_gnuplot_command("domain_count", "1")
@@ -547,24 +548,35 @@ class Graph_object():
         #print(DMq_phen_count)
         total_phen_count = self.construct_gnuplot_command("total_phen_count", str(self.total_phen_count))
         user_pos = self.construct_gnuplot_command("user_pos", str(self.user_pos))
-        #domains = construct_gnuplot_command("domains", "temp_domain_file")
-        #domain_ints = construct_gnuplot_command("domain_ints", "temp_dom_ints_file")
-        #exac = construct_gnuplot_command("exac", "temp_freq_file")
-        #consurf = construct_gnuplot_command("consurf", "temp_cons_file")
-        #hgmd = construct_gnuplot_command("hgmd", "temp_hgmd_file")
-        #gnuplot_command = ['gnuplot', '-e', svg_name, '-e', gene_name, '-e', x_length, '-e', domains, '-e', domain_ints, '-e', exac, '-e', consurf, '-e', hgmd, "plot"]
-        gnuplot_command = ['gnuplot',
-                           '-e', svg_name,
-                           '-e', gene_name,
-                           '-e', user_pos,
-                           '-e', x_length,
-                           '-e', data,
-                           '-e', domain_count,
-                           '-e', domain_gnu,
-                           '-e', DM_phen_count,
-                           '-e', DMq_phen_count,
-                           '-e', total_phen_count,
-                           "multiplot_final"]
+
+        if hemi==True or chrY==True:
+            gnuplot_command = ['gnuplot',
+                               '-e', svg_name,
+                               '-e', gene_name,
+                               '-e', user_pos,
+                               '-e', x_length,
+                               '-e', data,
+                               '-e', chrom,
+                               '-e', domain_count,
+                               '-e', domain_gnu,
+                               '-e', DM_phen_count,
+                               '-e', DMq_phen_count,
+                               '-e', total_phen_count,
+                               "multiplot_final_hemi"]
+        else:
+            gnuplot_command = ['gnuplot',
+                               '-e', svg_name,
+                               '-e', gene_name,
+                               '-e', user_pos,
+                               '-e', x_length,
+                               '-e', data,
+                               '-e', chrom,
+                               '-e', domain_count,
+                               '-e', domain_gnu,
+                               '-e', DM_phen_count,
+                               '-e', DMq_phen_count,
+                               '-e', total_phen_count,
+                               "multiplot_final"]
         #print(gnuplot_command)
         subprocess.call(gnuplot_command)
 
@@ -594,7 +606,7 @@ class Graph_object():
     	#return columns of interest
         exac_het_df = self.df_filter_columns(df_other, ["het_pos", "het_freq"], "het_pos")
         df_sliced = pd.concat([df_sliced, exac_het_df], axis=1) 	
-        exac_hom_df = self.df_filter_columns(df_other, ["homo_pos", "homo_freq"], "homo_pos")
+        exac_hom_df = self.df_filter_columns(df_other, ["hom_pos", "hom_freq"], "hom_pos")
         df_sliced = pd.concat([df_sliced, exac_hom_df], axis=1)
         #exac_hemi_df = self.df_filter_columns(df_other, ["hemi_pos", "hemi_freq"], "hemi_pos")
   	#df_sliced = pd.concat([df_sliced, exac_hemi_df], axis=1)       
