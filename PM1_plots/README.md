@@ -1,7 +1,13 @@
 # PM1_plots
 
-Created by Stuart Cannon s.cannon@exeter.ac.uk
 Updated and maintained by Verity Fryer verity.fryer@nhs.net
+Created by Stuart Cannon s.cannon@exeter.ac.uk
+
+#### Update 26/01/18 ####
+ - Plots of ExAC data will now include all allele frequencies seperated by zygosity (heterozygous, homozygous, hemizygous).
+ - When entering a password for HGMD log-in, this will not appear on the screen.
+ - The amino acid residue number will appear in the X-axis of the plot.
+########################
 
 This code is designed to aggregate data to contribute to the interpretation of novel variants and deduce whether said variant is in a pathogenic variation hotspot, with an absence of benign variation.
 It was written as part of a trainee project and although it produces a useful plot, there is much scope for development in terms of code structure,
@@ -11,12 +17,13 @@ It will plot and svg using gnuplot with the amino acid residue along the x-axis 
 * Harvard Exac API 
 * HGMD
 * UniProt 
+* Consurf
 
-If consurf data are present within the 'consurf_grades' directory they will also be plotted. 
-note they should be saved as is output by consurf ("consurf.grades") in a directory  named as the user input gene name.
+If Consurf data are present within the 'consurf_grades' directory they will also be plotted. 
+N.B. Consurf data should be saved as output by Consurf ("consurf.grades") in a directory  named as the user input gene name.
 e.g. if you are trying to plot ABCC8, call the directory containing the ABCC8 consurf data "ABCC8".
 
-You can generate consurf conservation scores here:
+You can generate Consurf conservation scores here:
 
 http://consurf.tau.ac.il/2016/
 
@@ -38,7 +45,6 @@ http://consurf.tau.ac.il/2016/
     python PM1_plotter.py ABCC8 123
 
 ## Caveats
-
 
 Please be aware that there are some caveats to bear in mind when using PM1 plots regarding transcripts.
 
