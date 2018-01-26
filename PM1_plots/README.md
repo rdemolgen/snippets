@@ -1,14 +1,11 @@
 # PM1_plots
 
-Updated and maintained by Verity Fryer verity.fryer@nhs.net
-Created by Stuart Cannon s.cannon@exeter.ac.uk
-
-#### Update 26/01/18 ####
+### Update 26/01/18 ###
  - Plots of ExAC data will now include all allele frequencies seperated by zygosity (heterozygous, homozygous, hemizygous).
  - When entering a password for HGMD log-in, this will not appear on the screen.
  - The amino acid residue number will appear in the X-axis of the plot.
-########################
 
+## Introduction ##
 This code is designed to aggregate data to contribute to the interpretation of novel variants and deduce whether said variant is in a pathogenic variation hotspot, with an absence of benign variation.
 It was written as part of a trainee project and although it produces a useful plot, there is much scope for development in terms of code structure,
 the data included as well as visualisation.
@@ -27,7 +24,7 @@ You can generate Consurf conservation scores here:
 
 http://consurf.tau.ac.il/2016/
 
-## Prerequisites:
+## Prerequisites: ##
 * Developed with python 3.6
 * Gnuplot version 5
 * Mechanicalsoup
@@ -36,15 +33,15 @@ http://consurf.tau.ac.il/2016/
 * pandas
 * collections
 
-## Usage 
+## Usage ##
 
     python PM1_plotter.py [gene] [amino acid residue number]
 
-## Example usage
+## Example usage ##
 
     python PM1_plotter.py ABCC8 123
 
-## Caveats
+## Caveats ##
 
 Please be aware that there are some caveats to bear in mind when using PM1 plots regarding transcripts.
 
@@ -66,3 +63,6 @@ So it is possible that the transcripts used to create the plots may be different
 
 The transcripts used for each section of the graph will be printed to screen.
 **The graph plotted will be based on the length of the canonical transcript as defined by Uniprot.**
+
+Updated and maintained by Verity Fryer (verity.fryer@nhs.net)
+Created by Stuart Cannon (s.cannon@exeter.ac.uk)
