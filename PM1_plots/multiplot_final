@@ -2,7 +2,7 @@
 
 #type, colour and size of output 
 #set terminal svg background rgb 'grey90' size 5000, 800 # enlarged canvas for proteins > ~ 4000 amino acids
-set terminal svg background rgb 'grey90' size 5000, 800
+set terminal svg background rgb 'grey90' size 2000, 800
 #name of the output file
 set output svg_name
 #title at the top of the file
@@ -88,7 +88,7 @@ set size 1,0.2
 set yrange [1:9]
 unset border
 set ytics out nomirror
-set ylabel 'consurf score' rotate by 0 offset -8
+set ylabel 'Consurf score' rotate by 0 offset -8
 unset xtics
 unset arrow
 set arrow from user_pos,0.00001 to user_pos,total_phen_count nohead lc rgb 'red'
