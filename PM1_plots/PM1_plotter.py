@@ -562,8 +562,8 @@ class Graph_object():
             left_margin = self.construct_gnuplot_command("left_margin", '0.18')
 
         # Add logic to deal with larger amino acids
-        if int(self.length) > 3000:
-            set_canvas_x = ((int(self.length)-2000)*1.1)+2000
+        if adjusted_length > 3000:
+            set_canvas_x = ((adjusted_length-200)/4)+2000
             canvas_x = self.construct_gnuplot_command("canvas_x", str(set_canvas_x))
         else:  # default canvas is 2000 (x-axis) by 800 (y-axis)
             canvas_x = self.construct_gnuplot_command("canvas_x", str(2000))
