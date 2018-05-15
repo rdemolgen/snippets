@@ -1,8 +1,7 @@
 #!/usr/local/bin/gnuplot
 
 #type, colour and size of output 
-#set terminal svg background rgb 'grey90' size 5000, 800 # enlarged canvas for proteins > ~ 4000 amino acids
-set terminal svg background rgb 'grey90' size 2000, 800
+set terminal svg background rgb 'grey90' size canvas_x, 800
 #name of the output file
 set output svg_name
 #title at the top of the file

@@ -555,16 +555,18 @@ class Graph_object():
         # calculate difference between longest phenotype name and threshold (60)
         # Use this as the basis for adjusting the left margin of the plot, and expanding the canvas width
         if longest_phen > 60:
-            phen_name_diff = longest_phen-60
-            # phen_name_diff divded by ?, added to threshold left_margin of 0.18
+            # phen_name_diff multipled by 2.3, divided by 1000, added to threshold left_margin of 0.18
             set_lmargin = (((longest_phen-50)*2.3)/1000)+0.18
             left_margin = self.construct_gnuplot_command("left_margin", str(set_lmargin))
         else:
             left_margin = self.construct_gnuplot_command("left_margin", '0.18')
+
         # Add logic to deal with larger amino acids
-       
-        #canvas_x = 
-        #canvas_y = 
+        if int(self.length) > 3000:
+            set_canvas_x = ((int(self.length)-2000)*1.1)+2000
+            canvas_x = self.construct_gnuplot_command("canvas_x", str(set_canvas_x))
+        else:  # default canvas is 2000 (x-axis) by 800 (y-axis)
+            canvas_x = self.construct_gnuplot_command("canvas_x", str(2000))
 
         DM_phen_count = self.construct_gnuplot_command("DM_phen_count", str(self.HGMD_DM_track_count))
         #print(DM_phen_count)
@@ -578,6 +580,7 @@ class Graph_object():
                                '-e', svg_name,
                                '-e', gene_name,
                                '-e', user_pos,
+                               '-e', canvas_x,
                                '-e', left_margin,
                                '-e', x_length,
                                '-e', data,
@@ -593,6 +596,7 @@ class Graph_object():
                                '-e', svg_name,
                                '-e', gene_name,
                                '-e', user_pos,
+                               '-e', canvas_x,
                                '-e', left_margin,
                                '-e', x_length,
                                '-e', data,
