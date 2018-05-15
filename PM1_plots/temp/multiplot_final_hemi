@@ -9,11 +9,8 @@ set output svg_name
 # to include transcript from HGMD (RefSeq) exac_canon_transcript_id (ENST) and UniProt ID in future
 set title gene_name
 
-#if (exists('left_margin')) print 'left margin is defined'
-#if (!exists('left_margin')) print 'left margin is not defined'
-
-set lmargin at screen left_margin
-set rmargin at screen 0.98
+set lmargin at screen 0.18
+set rmargin at screen 0.95
 
 #use the multiplot function to display multiple plots
 set multiplot
@@ -35,12 +32,10 @@ unset y2tics
 set origin 0,0.7
 set size 1,0.3
 set arrow from user_pos,-1 to user_pos,total_phen_count nohead lc rgb 'red'
-#print("domain_gnu:") 
-#print domain_gnu
-DM_residue = domain_gnu + 11
+# specify columns from data file for data to plot
+DM_residue = domain_gnu + 13
 DM_track = DM_residue - 2
 DM_phen = DM_residue - 1
-
 DMq_res = DM_residue + 3
 DMq_track = DM_track + 3
 DMq_phen = DM_phen + 3
@@ -50,10 +45,6 @@ set linestyle 1 lt rgb "black" lw 0.5 # set linestyle for frame around legend
 set key horizontal box linestyle 1 # add frame to legend
 plot data u DM_residue:DM_track:ytic(DM_phen) pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) pt 2 title 'DM?'
 # N.B. pt 2 = cross, pt 3 = star, pt 7 = filled circle
-
-#plot data u DM_residue:DM_track:ytic(DM_phen) with circles title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
-
-#plot data u 15:13:ytic(14) with points pt 2 title 'DM', data u 18:16:ytic(17) with points pt 4 title 'DMq'
 
 #Uniprot domain styles
 set style line 1 lt 4 lw 8 lc rgb 'navy'
@@ -83,7 +74,6 @@ unset arrow
 set arrow from user_pos,-11 to user_pos,total_phen_count nohead lc rgb 'red'
 plot for [i=2:domain_gnu] data u 1:(column(i)) with lines
 
-
 set style line 10 lt 4 lw 0.5 lc rgb 'navy'
 set style line 11 lt 4 lw 1 lc rgb 'red'
 set origin 0,0.4
@@ -91,18 +81,15 @@ set size 1,0.2
 set yrange [1:9]
 unset border
 set ytics out nomirror
+# add y-axis label, rotated and offset so that is can be read L-R and doesn't overlap tickmarks
 set ylabel 'Consurf score' rotate by 0 offset -8
 unset xtics
 unset arrow
 set arrow from user_pos,0.00001 to user_pos,total_phen_count nohead lc rgb 'red'
-position_col = domain_gnu + 8
-#position_col = domain_gnu + 10
+position_col = domain_gnu + 10
 cons_data = position_col - 3
 
-
 plot data u position_col:cons_data with lines ls 10 notitle
-#plot data u 12:9 with lines ls 10 notitle
-#data u 12:11 with lines ls 11 notitle
 
 set origin 0,0.2
 set size 1,0.2
@@ -110,6 +97,7 @@ set format y "%.0tx10^%+03T"
 set ytics out nomirror
 set yrange [0.00001:1]
 set xlabel "Protein residue marked by red line at position ".user_pos
+# add y-axis label, rotated and offset so that is can be read L-R and doesn't overlap tickmarks
 set ylabel "ExAC all MAF" rotate by 0 offset -6 #exac_canon_transcript_id
 set logscale y
 set key horizontal inside right top
@@ -119,7 +107,8 @@ het_pos = domain_gnu + 1
 het_freq = domain_gnu + 2
 hom_pos = domain_gnu + 3
 hom_freq = domain_gnu + 4
-#hemi_pos = domain_gnu + 5
-#hemi_freq = domain_gnu + 6
+hemi_pos = domain_gnu + 5
+hemi_freq = domain_gnu + 6
 
-plot data u het_pos:het_freq pt 2 title 'Heterozygous', data u hom_pos:hom_freq pt 3 title 'Homozygous'
+plot data u het_pos:het_freq pt 2 title 'Heterozygous', data u hom_pos:hom_freq pt 3 title 'Homozygous', data u hemi_pos:hemi_freq pt 2 title 'Hemizygous'
+ 

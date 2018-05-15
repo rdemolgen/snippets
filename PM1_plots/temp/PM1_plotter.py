@@ -139,10 +139,10 @@ class Graph_object():
     # N.B. adding too many areas of interest may cause the plot to become too crowded
     def specific_gff_annotations(self):
         # Possible options to add the required_list include:
-        #required_list = ["Beta strand","Topological domain", "Helix", "Turn", "Repeat","Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
+        #required_list = ["Beta strand", "Helix", "Turn", "Repeat","Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
         # Adding "Topological domain" causes the script to fail
         try:
-            required_list = ["Repeat", "Domain", "Region", "Transmembrane", "DNA binding", "Motif", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
+            required_list = ["Region","Repeat", "Domain", "Transmembrane", "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
             gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
             if len(gff_objects) <1:
                 sys.exit()
@@ -374,14 +374,13 @@ class Graph_object():
         return variant_instances
         #write_hgmd = HGMD.write_DM_file(variant_instances)
 
-    #Writes HGMD data into columns by phenotype, separates by DM and DM? annotation
+    #Writes HGMD data into columns by phentype, separates by DM and DM? annotation
     #assigns an index number to each phentotype so they can be plotted separately without many columns in the datafile
     def write_HGMD_data(self, obj_d, DM=True):
         #for k,v in obj_d.items():
         #    print(k,v)
         df = pd.read_csv(self.plotting_file, delimiter='\t', index_col=0)
         #phen_index where { phen : count }
-        #print(max(list(obj_d.keys()),key=len)) # print the phenotype with the longest name
         track = []
         phenotype = []
         position = []
@@ -407,8 +406,9 @@ class Graph_object():
             pos_df = pd.DataFrame({'DM_Residue' : position}) 
             df = pd.concat([df, pos_df], axis=1)
             df.to_csv(self.plotting_file, sep='\t', na_rep="?")
-            #print(max(list(self.phen_index.keys()), key=len)) # print phenotype with the longest name
-            self.longest_phen_DM = len(max(list(self.phen_index.keys()), key=len)) # length of phenotype with the longest name
+            #print(df)
+            #print(list(self.phen_index.keys())) # print list of phenotypes associated with a gene
+            #print(list(self.phen_index.keys())[list(self.phen_index.values()).index(1)]) # print the first phenotype in the phenotype list
             #print([list(self.phen_index.values())])
             df.to_csv(self.plotting_file, sep='\t', na_rep=list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
             #print(df)
@@ -440,8 +440,6 @@ class Graph_object():
             df = pd.concat([df, pos_df], axis=1)      
             #sorted_keys = sorted(self.phen_index, key=self.phen_index.__getitem__)
             #phen_uniq_df = pd.DataFrame({'phenotype_labels' : sorted_keys})
-            #print(max(list(self.phen_index.keys()), key=len)) # print the phenotype with the longest name
-            self.longest_phen_DMq = len(max(list(self.phen_index.keys()), key=len)) # length of phenotype with the longest name
             #df = pd.concat([df, phen_uniq_df], axis=1)
             df.to_csv(self.plotting_file, sep='\t', na_rep=list(self.phen_index.keys())[list(self.phen_index.values()).index(1)])
             self.HGMD_DMq_track_count = count
@@ -505,12 +503,7 @@ class Graph_object():
             domain_count = self.construct_gnuplot_command("domain_count", str(self.domain_count))
             domain_gnu = self.construct_gnuplot_command("domain_gnu", str(self.domain_count + 1))
         #self.HGMD_track_count = count
-
-        # Assess how long the longest phenotype name is
-        longest_phen_list = [self.longest_phen_DM, self.longest_phen_DMq]
-        longest_phen = max(longest_phen_list)
-        # Add logic to deal with larger phenotype names and plot on a larger canvas
-
+        #MAY NEED SOME LOGIC TO PLOT THE LARGEST AXIS FOR PHENOTYPES CURRENTLY PLOTTED BASED ON DM COUNT 
         DM_phen_count = self.construct_gnuplot_command("DM_phen_count", str(self.HGMD_DM_track_count))
         #print(DM_phen_count)
         DMq_phen_count = self.construct_gnuplot_command("DMq_phen_count", str(self.HGMD_DMq_track_count))
@@ -548,24 +541,7 @@ class Graph_object():
             domain_count = self.construct_gnuplot_command("domain_count", str(self.domain_count))
             domain_gnu = self.construct_gnuplot_command("domain_gnu", str(self.domain_count + 1))
         #self.HGMD_track_count = count
-
-        # Assess how long the longest phenotype name is
-        longest_phen_list = [self.longest_phen_DM, self.longest_phen_DMq]
-        longest_phen = max(longest_phen_list)
-        # calculate difference between longest phenotype name and threshold (60)
-        # Use this as the basis for adjusting the left margin of the plot, and expanding the canvas width
-        if longest_phen > 60:
-            phen_name_diff = longest_phen-60
-            # phen_name_diff divded by ?, added to threshold left_margin of 0.18
-            set_lmargin = (((longest_phen-50)*2.3)/1000)+0.18
-            left_margin = self.construct_gnuplot_command("left_margin", str(set_lmargin))
-        else:
-            left_margin = self.construct_gnuplot_command("left_margin", '0.18')
-        # Add logic to deal with larger amino acids
-       
-        #canvas_x = 
-        #canvas_y = 
-
+        #MAY NEED SOME LOGIC TO PLOT THE LARGEST AXIS FOR PHENOTYPES CURRENTLY PLOTTED BASED ON DM COUNT 
         DM_phen_count = self.construct_gnuplot_command("DM_phen_count", str(self.HGMD_DM_track_count))
         #print(DM_phen_count)
         DMq_phen_count = self.construct_gnuplot_command("DMq_phen_count", str(self.HGMD_DMq_track_count))
@@ -578,7 +554,6 @@ class Graph_object():
                                '-e', svg_name,
                                '-e', gene_name,
                                '-e', user_pos,
-                               '-e', left_margin,
                                '-e', x_length,
                                '-e', data,
                                '-e', chrom,
@@ -593,7 +568,6 @@ class Graph_object():
                                '-e', svg_name,
                                '-e', gene_name,
                                '-e', user_pos,
-                               '-e', left_margin,
                                '-e', x_length,
                                '-e', data,
                                '-e', chrom,
