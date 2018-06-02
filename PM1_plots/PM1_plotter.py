@@ -182,7 +182,7 @@ class Graph_object():
             result_array = np.append(result_array, [item], axis=0)
         with open(self.plotting_file, 'wb') as f:
             headers = '{0}'.format('\t'.join(self.uniprot_columns))
-            f.write(bytes(headers, 'utf-8') + bytes('\n', 'utf-8'))
+            f.write(bytes.encode(headers, 'utf-8') + bytes.encode('\n', 'utf-8'))
             np.savetxt(f, np.transpose([result_array]), delimiter='\t')
         self.domain_count = len(master_dict.keys())
         return arrays_to_save
