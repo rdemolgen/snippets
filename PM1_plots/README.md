@@ -1,5 +1,7 @@
 # PM1_plots
 
+### Update 05/06/2018: Currently the Harvard Medical School ExAC API is down therefore PM1 plots won't work. We are working towards an alternative ###
+
 ### Update 26/01/18 ###
  - Plots of ExAC data will now include all allele frequencies seperated by zygosity (heterozygous, homozygous, hemizygous).
  - When entering a password for HGMD log-in, this will not appear on the screen.
