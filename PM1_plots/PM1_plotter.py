@@ -142,7 +142,7 @@ class Graph_object():
         #required_list = ["Beta strand","Topological domain", "Helix", "Turn", "Repeat","Motif", "Domain", "Region", "Transmembrane",  "DNA binding", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
         # Adding "Topological domain" causes the script to fail
         try:
-            required_list = ["Repeat", "Domain", "Region", "Transmembrane", "DNA binding", "Motif", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
+            required_list = ["Repeat", "Topological domain","Domain", "Region", "Transmembrane", "DNA binding", "Motif", "Zinc finger", "Disulfide bond", "Nucleotide binding", "Coiled coil"]
             gff_objects = self.Up.parse_gff(self.all_gff_annotation, required_list)
             if len(gff_objects) <1:
                 sys.exit()
@@ -361,9 +361,9 @@ class Graph_object():
         HGMD = HGMD_pro(gene_name)
         all_mutations_soup = HGMD.scrape_HGMD_all_mutations(hgmd_username,hgmd_password)
         #list of objects
-        variant_instances = HGMD.extract_missense_nonsense(all_mutations_soup)
+        variant_instances = HGMD.extract_missense(all_mutations_soup)
         #for i in variant_instances:
-           #print(i.__dict__) #returns dict of mutation class and list of objects in that class
+        #   print(i.__dict__) #returns dict of mutation class and list of objects in that class
         separate_var_class = self.var_class_separator(variant_instances)
         for var_class,objs in separate_var_class.items():
             #separate_each_list_by returning dictionaries
@@ -562,8 +562,8 @@ class Graph_object():
             left_margin = self.construct_gnuplot_command("left_margin", '0.18')
 
         # Add logic to deal with larger amino acids
-        if adjusted_length > 3000:
-            set_canvas_x = ((adjusted_length-200)/4)+2000
+        if adjusted_length > 2500:
+            set_canvas_x = ((adjusted_length-200)/4)+2500
             canvas_x = self.construct_gnuplot_command("canvas_x", str(set_canvas_x))
         else:  # default canvas is 2000 (x-axis) by 800 (y-axis)
             canvas_x = self.construct_gnuplot_command("canvas_x", str(2000))

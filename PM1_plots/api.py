@@ -1,4 +1,4 @@
-import requests, json, sys, re, time, mechanicalsoup
+import requests, json, sys, re, time, mechanicalsoup, fnmatch
 from bs4 import BeautifulSoup
 
 class Uniprot_api():
@@ -217,8 +217,8 @@ class HGMD_pro():
         
         ###################################remember to un comment the above######################################################################
         
-    def extract_missense_nonsense(self, all_mutations_soup):
-    	#may need to add HGMD accession to headers when it's live
+    def extract_missense(self, all_mutations_soup):
+    	#may need to add "HGMD accession" header to headers when it's live
         HGMD_headers = ["HGMD_codon_change", "amino_acid_change", "HGVS_nuc", "HGVS_prot", "var_class", "phenotype","reference", "additional"]
         HGMD_headers_legacy = ["HGMD_codon_change", "amino_acid_change", "legacy_change", "HGVS_nuc", "HGVS_prot", "var_class", "phenotype","reference", "additional"]
         HGMD_var_objs = []
@@ -232,26 +232,33 @@ class HGMD_pro():
             cols = [ele.text.strip() for ele in cols]
             #remove empty strings
             cols = [ele for ele in cols if ele]
-            if len(cols) == 8:
-                variant_dict = {key:value for key,value in zip(HGMD_headers, cols)}
-                var_instance = HGMD_variant(**variant_dict)
-                HGMD_var_objs.append(var_instance)
-            elif len(cols) == 9: # if a legacy naming column exists, for example gene INSR
-                variant_dict = {key:value for key,value in zip(HGMD_headers_legacy, cols)}
-                var_instance = HGMD_variant(**variant_dict)
-                HGMD_var_objs.append(var_instance)
-            elif len(cols) == 7:
-                variant_dict = {key:value for key,value in zip(HGMD_headers, cols)}
-                if 'additional' not in variant_dict:
-                	variant_dict['additional'] = 'None'
-                elif additional in variant_dict:
-                	continue
-                var_instance = HGMD_variant(**variant_dict)
-                HGMD_var_objs.append(var_instance)
+            # search through each entry to find nonsense mutations and remove these from final list
+            regex = re.compile('p.[A-Z]{1}[0-9]+\*')
+            matches = [string for string in cols if re.match(regex, string)]
+            if matches == []:
+                if len(cols) == 8:
+                    variant_dict = {key:value for key,value in zip(HGMD_headers, cols)}
+                    var_instance = HGMD_variant(**variant_dict)
+                    HGMD_var_objs.append(var_instance)
+                elif len(cols) == 9: # if a legacy naming column exists, for example gene INSR
+                    variant_dict = {key:value for key,value in zip(HGMD_headers_legacy, cols)}
+                    var_instance = HGMD_variant(**variant_dict)
+                    HGMD_var_objs.append(var_instance)
+                elif len(cols) == 7:
+                    variant_dict = {key:value for key,value in zip(HGMD_headers, cols)}
+                    if 'additional' not in variant_dict:
+                        variant_dict['additional'] = 'None'
+                    elif additional in variant_dict:
+                        continue
+                    var_instance = HGMD_variant(**variant_dict)
+                    HGMD_var_objs.append(var_instance)
+                else:
+                    if num_rows != 0:
+                        print("Columns in HGMD table = " + str(len(cols)) + ". Cannot handle this many columns")
+                num_rows =+1
             else:
-                if num_rows != 0:
-                    print("Columns in HGMD table = " + str(len(cols)) + ". Cannot handle this many columns")
-            num_rows =+1
+                pass                
+
         return HGMD_var_objs
 
     def write_DM_file(self, variant_instance_list):
@@ -260,6 +267,7 @@ class HGMD_pro():
                 try:
                     m = re.search(r'(p\.)([^0-9]*)(\d{1,})(.*)', item.hgvs_prot)
                     if m:
+                        print(item.variant_class)
                         if item.variant_class == "DM":
                             string = m.group(3) + '\t' + '1\n'
                         elif item.variant_class == "DM?":
