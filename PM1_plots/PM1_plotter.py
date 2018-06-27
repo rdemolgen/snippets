@@ -6,8 +6,10 @@ from collections import defaultdict
 
 #the purpose of this class is to model and collect the data required of a plot and then write to a file for retention and subsequent plotting
 
-hgmd_username = input("\nEnter HGMD Pro licence username: ")
-hgmd_password = getpass.getpass(prompt="Enter HGMD Pro licence password (hidden): ")
+#hgmd_username = input("\nEnter HGMD Pro licence username: ")
+#hgmd_password = getpass.getpass(prompt="Enter HGMD Pro licence password (hidden): ")
+hgmd_username = "1"
+hgmd_password = "123"
 
 class Graph_object():
 	
@@ -22,7 +24,7 @@ class Graph_object():
     slice_start = 0
     slice_end = 0
 	
-    def __init__(self, gene_name, user_pos):
+    def __init__(self, gene_name, user_pos, *extra_args):
         self.gene = gene_name
         self.user_pos = user_pos
         self.hgmd_username = hgmd_username
@@ -66,6 +68,7 @@ class Graph_object():
             self.consurf_file = self.find_consurf_file(gene_name)
         except:
             self.consurf_file = "no_file"
+        #print("consurffile",self.consurf_file,gene_name)
         self.consurf_data = self.parse_consurf_grades(self.consurf_file, self.length)
         self.write_consurf_data = self.write_consurf_grades(self.consurf_data)
 
@@ -75,8 +78,10 @@ class Graph_object():
         if self.DM_objs == {} and self.DM_likely_objs == {}:
             print("No variants found in HGMD")
         elif self.DM_objs == {}:
+            print("dmito")
             self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
         else:
+            print("dmito2",self.chrom)
             self.write_DM_data = self.write_HGMD_data(self.DM_objs)
             self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
 
@@ -182,8 +187,9 @@ class Graph_object():
             result_array = np.append(result_array, [item], axis=0)
         with open(self.plotting_file, 'wb') as f:
             headers = '{0}'.format('\t'.join(self.uniprot_columns))
-            f.write(bytes.encode(headers, 'utf-8') + bytes.encode('\n', 'utf-8'))
-            np.savetxt(f, np.transpose([result_array]), delimiter='\t')
+            f.write(bytes(headers, 'utf-8') + bytes('\n', 'utf-8'))
+            #np.savetxt(f, np.transpose([result_array]), delimiter='\t')
+            np.savetxt(f, np.transpose(result_array), delimiter='\t')
         self.domain_count = len(master_dict.keys())
         return arrays_to_save
     
@@ -340,7 +346,7 @@ class Graph_object():
                         if '*' in spl[4]:
                             cons_pos["cons"].append(0)
                         else:
-                            cons_pos["cons"].append(spl[4].strip(' '))      		
+                            cons_pos["cons"].append(spl[4].strip(' '))
         return cons_pos                        	      
 
     #opens data, creates a new df with conservation, running mean and cumulative mean.
@@ -354,6 +360,7 @@ class Graph_object():
         pos_df = pd.DataFrame({'pos' : cons_pos_dict['pos']})
         df = pd.concat([df, pos_df], axis=1)
         df.to_csv(self.plotting_file, sep='\t', na_rep='?')
+        print("plotting_file",self.plotting_file)
         return df    
     
 ### HGMD data  ###################################################################
@@ -362,8 +369,8 @@ class Graph_object():
         all_mutations_soup = HGMD.scrape_HGMD_all_mutations(hgmd_username,hgmd_password)
         #list of objects
         variant_instances = HGMD.extract_missense_nonsense(all_mutations_soup)
-        #for i in variant_instances:
-           #print(i.__dict__) #returns dict of mutation class and list of objects in that class
+         #for i in variant_instances:
+        #   print(i.__dict__) #returns dict of mutation class and list of objects in that class
         separate_var_class = self.var_class_separator(variant_instances)
         for var_class,objs in separate_var_class.items():
             #separate_each_list_by returning dictionaries
@@ -591,6 +598,11 @@ class Graph_object():
                                '-e', DMq_phen_count,
                                '-e', total_phen_count,
                                "multiplot_final_hemi"]
+            gnuplot_command = ['gnuplot',
+                               '-e', "\"{0}\"".format(";".join((svg_name, gene_name, user_pos,
+                               canvas_x, left_margin, x_length, data,
+                               chrom, domain_count, domain_gnu, DM_phen_count,
+                               DMq_phen_count, total_phen_count))),"multiplot_final_hemi"]
         else:
             gnuplot_command = ['gnuplot',
                                '-e', svg_name,
@@ -607,7 +619,12 @@ class Graph_object():
                                '-e', DMq_phen_count,
                                '-e', total_phen_count,
                                "multiplot_final"]
-        #print(gnuplot_command)
+            gnuplot_command = ['gnuplot',
+                               '-e', "\"{0}\"".format(";".join((svg_name, gene_name, user_pos,
+                               canvas_x, left_margin, x_length, data,
+                               chrom, domain_count, domain_gnu, DM_phen_count,
+                               DMq_phen_count, total_phen_count))),"multiplot_final"]
+        print("gnuplot_cmd:"," ".join(gnuplot_command))
         subprocess.call(gnuplot_command)
 
     #inital method to create a zoomed in data file for plotting with an additional gnuplot script
@@ -656,4 +673,4 @@ class Graph_object():
         return filtered_df
         
 if __name__ == "__main__":
-    Graph_object(sys.argv[1], sys.argv[2])
+    Graph_object(sys.argv[1], sys.argv[2], *sys.argv[3:])

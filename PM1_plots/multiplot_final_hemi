@@ -1,4 +1,4 @@
-#!/usr/local/bin/gnuplot
+#!/usr/bin/gnuplot
 
 #type, colour and size of output 
 set terminal svg background rgb 'grey90' size canvas_x, 800

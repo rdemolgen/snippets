@@ -1,5 +1,18 @@
 import requests, json, sys, re, time, mechanicalsoup
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.remote.command import Command
+chrome_options=webdriver.ChromeOptions()
+chrome_options.set_headless(True)
+#chrome_options.add_argument("--window-size=1920x1080")
+chrome_options.add_argument("no-sandbox")
+chrome_options.add_argument('--disable-gpu')  # applicable to windows os only
+#chrome_options.add_argument('start-maximized') # 
+chrome_options.add_argument('disable-infobars')
+chrome_options.add_argument("--disable-extensions")
+chrome_driver = webdriver.Chrome(chrome_options=chrome_options)
+chrome_driver.set_script_timeout(30)
+
 
 class Uniprot_api():
 
@@ -64,29 +77,58 @@ class Ensembl_api():
                 
     def tester(self, string):
         print(string)
+
+def jsonloads_from_html(request):
+    """As sometimes, although the page is requested with the headers Content-type:text/json, the page is rendered as a
+    HTML document"""
+    try:
+        jsondict=request.json()
+    except json.decoder.JSONDecodeError as jsondecerr:
+        bs=BeautifulSoup(request.text,"html.parser")
+        scripts=bs.find_all("script")
+        jsondict={}
+        for script in scripts:
+            if script.string is None:
+                continue
+            assert len(script.contents)==1
+            chrome_driver.execute_script(script.contents[0])
+            jsondict=chrome_driver.execute_script("return {'gene':gene,'transcript':transcript};")
+            return jsondict#For now only parse the first script tag
+    return jsondict
                 
 class Exac_api():
 
     def __init__(self):
-        self.server = "http://exac.hms.harvard.edu/"
+        #self.server = "http://exac.hms.harvard.edu/"
+        self.server = "http://exac.broadinstitute.org"
         self.json_headers = {"Content-Type" : "application/json"}
 
     def variants_in_gene(self, ensembl_id):
-        ext = "/rest/gene/variants_in_gene/" + ensembl_id
+        #ext = "/rest/gene/variants_in_gene/" + ensembl_id
+        ext = "/gene/" + ensembl_id
+        #ext = "/gene/variants_in_gene/" + ensembl_id
         r = requests.get(self.server + ext, headers=self.json_headers)
-        json_r = r.json()
+        #print("plog",r,self.server + ext,self.json_headers)#,"rt",r.text)
+        #json_r = r.json()
+        texto=chrome_driver.execute(Command.GET,{"url":self.server + ext,"headers":self.json_headers})
+
+        json_r=jsonloads_from_html(r)
         return json_r
     
     def canonical_transcript(self, ensembl_id):
         ext = "/rest/gene/" + ensembl_id
+        ext = "/gene/" + ensembl_id
         r = requests.get(self.server + ext, headers=self.json_headers)
-        json_r = r.json()
+        #json_r = r.json()
+        json_r=jsonloads_from_html(r)
         return json_r
 
     def variants_in_region(self, chr, start, stop):
         ext = "/rest/region/variants_in_region/" + chr + '-' + start + '-' + stop
         r = requests.get(self.server + ext, headers=self.json_headers)
-        json_r = r.json()
+        #json_r = r.json()
+        json_r=jsonloads_from_html(r)
+        #assert 0,json_r
         return json_r
 
     # update each variant entry with het_count and hemi_count(where applicable)
@@ -111,10 +153,19 @@ class Exac_api():
         pass_vars = []
         for variant in variant_list:
             if remove == False:
-                if variant[key] == value:
+                #print("ky",key,variant,value,variant_list.keys())
+                if key=="filter" and value=="PASS":
+                    #assert 0,(variant,variant_list)
+                    pass_vars.append(variant_list[variant])
+                elif key=="CANONICAL" and value=="YES":
+                    if "canonical_transcript" in variant:
+                        if variant["canonical_transcript"]==variant["gene_id"]:
+                            pass_vars.append(variant)
+                elif variant[key] == value:
                     pass_vars.append(variant)
             #only keeps those not meeting the criteria
             else:
+                print("ky2",key,value,variant,variant_list)
                 if variant[key] == value:
                     pass
                 else:
