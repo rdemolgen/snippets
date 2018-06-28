@@ -17,3 +17,5 @@ conda install -c conda-forge mechanicalsoup=5
 conda install pymongo flask
 pip install flask-runner
 pip install flask-errormail
+#lua-static lua-term libX11-devel libXau
+#./configure --with-readline=gnu --x-includes=/-readline=gnu --with-x --x-includes=/usr/include/X11 --x-libraries=/usr/include/X11 --without-lua --without-qt

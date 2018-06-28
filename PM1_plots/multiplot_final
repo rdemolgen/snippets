@@ -1,7 +1,7 @@
 #!/usr/bin/gnuplot
 
 #type, colour and size of output 
-set terminal svg background rgb 'grey90' size canvas_x, 800
+#set terminal svg background rgb 'grey90' size canvas_x, 800
 #name of the output file
 set output svg_name
 #title at the top of the file
@@ -34,8 +34,7 @@ unset y2tics
 set origin 0,0.7
 set size 1,0.3
 set arrow from user_pos,-1 to user_pos,total_phen_count nohead lc rgb 'red'
-#print("domain_gnu:") 
-#print domain_gnu
+# specify columns from data file for data to plot
 DM_residue = domain_gnu + 11
 DM_track = DM_residue - 2
 DM_phen = DM_residue - 1
@@ -47,7 +46,8 @@ DMq_phen = DM_phen + 3
 set key inside right top
 set linestyle 1 lt rgb "black" lw 0.5 # set linestyle for frame around legend
 set key horizontal box linestyle 1 # add frame to legend
-plot data u DM_residue:DM_track:ytic(DM_phen) pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) pt 2 title 'DM?'
+#plot data u DM_residue:DM_track:ytic(DM_phen) pt 7 title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) pt 2 title 'DM?'
+plot data u DM_residue pt 7 title 'DM'#, data u DMq_track pt 2 title 'DM?'
 # N.B. pt 2 = cross, pt 3 = star, pt 7 = filled circle
 
 #plot data u DM_residue:DM_track:ytic(DM_phen) with circles title 'DM', data u DMq_res:DMq_track:ytic(DMq_phen) title 'DM?'
@@ -94,12 +94,13 @@ set ylabel 'Consurf score' rotate by 0 offset -8
 unset xtics
 unset arrow
 set arrow from user_pos,0.00001 to user_pos,total_phen_count nohead lc rgb 'red'
-position_col = domain_gnu + 8
-#position_col = domain_gnu + 10
+#position_col = domain_gnu + 8
+position_col = domain_gnu + 10
 cons_data = position_col - 3
 
 
-plot data u position_col:cons_data with lines ls 10 notitle
+#plot data u position_col:cons_data with lines ls 10 notitle
+plot data u cons_data with lines ls 10 notitle
 #plot data u 12:9 with lines ls 10 notitle
 #data u 12:11 with lines ls 11 notitle
 
@@ -122,3 +123,4 @@ hom_freq = domain_gnu + 4
 #hemi_freq = domain_gnu + 6
 
 plot data u het_pos:het_freq pt 2 title 'Heterozygous', data u hom_pos:hom_freq pt 3 title 'Homozygous'
+#plot data u het_pos pt 2 title 'Heterozygous', data u hom_pos pt 3 title 'Homozygous'

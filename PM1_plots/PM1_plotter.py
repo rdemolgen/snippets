@@ -29,6 +29,7 @@ class Graph_object():
         self.user_pos = user_pos
         self.hgmd_username = hgmd_username
         self.hgmd_password = hgmd_password
+        self.extra_args = extra_args
 
    	#Ensembl#############################
         self.Ens = Ensembl_api()
@@ -78,10 +79,8 @@ class Graph_object():
         if self.DM_objs == {} and self.DM_likely_objs == {}:
             print("No variants found in HGMD")
         elif self.DM_objs == {}:
-            print("dmito")
             self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
         else:
-            print("dmito2",self.chrom)
             self.write_DM_data = self.write_HGMD_data(self.DM_objs)
             self.write_DM_data2 = self.write_HGMD_data(self.DM_likely_objs, DM=False)
 
@@ -96,7 +95,7 @@ class Graph_object():
         else:
             self.execute_gnuplot(gene_name, user_pos, self.chrom)
         print("Data plotted.\n")
-        #self.create_smaller_graph_file()
+        self.create_smaller_graph_file()
         #self.execute_zoomed_gnuplot(gene_name)
         
     ### Ensembl_id   ####################################################
@@ -581,51 +580,26 @@ class Graph_object():
         #print(DMq_phen_count)
         total_phen_count = self.construct_gnuplot_command("total_phen_count", str(self.total_phen_count))
         user_pos = self.construct_gnuplot_command("user_pos", str(self.user_pos))
+        if "-i" in self.extra_args or "--interactive" in self.extra_args:
+            terminal="set terminal x11";
+        else:
+            terminal="set terminal svg background rgb 'grey90' size canvas_x, 800";
 
         if hemi==True or chrY==True:
             gnuplot_command = ['gnuplot',
-                               '-e', svg_name,
-                               '-e', gene_name,
-                               '-e', user_pos,
-                               '-e', canvas_x,
-                               '-e', left_margin,
-                               '-e', x_length,
-                               '-e', data,
-                               '-e', chrom,
-                               '-e', domain_count,
-                               '-e', domain_gnu,
-                               '-e', DM_phen_count,
-                               '-e', DMq_phen_count,
-                               '-e', total_phen_count,
-                               "multiplot_final_hemi"]
-            gnuplot_command = ['gnuplot',
-                               '-e', "\"{0}\"".format(";".join((svg_name, gene_name, user_pos,
+                               '-e', "{0}".format(";".join((svg_name, gene_name, user_pos,
                                canvas_x, left_margin, x_length, data,
                                chrom, domain_count, domain_gnu, DM_phen_count,
-                               DMq_phen_count, total_phen_count))),"multiplot_final_hemi"]
+                               DMq_phen_count, total_phen_count,terminal))),"multiplot_final_hemi"]
         else:
             gnuplot_command = ['gnuplot',
-                               '-e', svg_name,
-                               '-e', gene_name,
-                               '-e', user_pos,
-                               '-e', canvas_x,
-                               '-e', left_margin,
-                               '-e', x_length,
-                               '-e', data,
-                               '-e', chrom,
-                               '-e', domain_count,
-                               '-e', domain_gnu,
-                               '-e', DM_phen_count,
-                               '-e', DMq_phen_count,
-                               '-e', total_phen_count,
-                               "multiplot_final"]
-            gnuplot_command = ['gnuplot',
-                               '-e', "\"{0}\"".format(";".join((svg_name, gene_name, user_pos,
+                               '-e', "{0}".format(";".join((svg_name, gene_name, user_pos,
                                canvas_x, left_margin, x_length, data,
                                chrom, domain_count, domain_gnu, DM_phen_count,
-                               DMq_phen_count, total_phen_count))),"multiplot_final"]
-        print("gnuplot_cmd:"," ".join(gnuplot_command))
-        subprocess.call(gnuplot_command)
+                               DMq_phen_count, total_phen_count,terminal))),"multiplot_final"]
+        #print("gnuplot_cmd:"," ".join(gnuplot_command))
+        completedprocess=subprocess.run(gnuplot_command,shell=False)
+        print("coproc",completedprocess)
 
     #inital method to create a zoomed in data file for plotting with an additional gnuplot script
     def create_smaller_graph_file(self):
