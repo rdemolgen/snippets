@@ -1,21 +1,48 @@
-#!/bon/bash
-#Script to install the required dependencies for the python scripts in this folders
-#If you need some programs running in Python 3.6 and others in other Python version (like Python 2.7), you may 
-#take adevantages of the conda enviromments. Conda environments are sets of Python executables and modules compatible to them.
-#If you need to create an environment specific for Python 3.6, you may do it with the following command:
-#conda create --name python36 python=3.6
-#Then you, should activate the enviromnent with the command
-#source activate python36
-#each subsequent time you need to use this modules, you only need to activate the module
-#When you finnish, you may deaactivate this enviromnent (to use the base environment) with the command:
-#source deactivate
-#ot you may activate other environment (which will replace the current one)
-#Pysam for the exac browser(it install samtools, htslib and the like)
-conda install -c bioconda gnuplot numpy pandas pysam
-#MehanicalSoup 5 install as dependency beautifulsoup4-4.6.0
-conda install -c conda-forge mechanicalsoup=5
-conda install pymongo flask
-pip install flask-runner
-pip install flask-errormail
-#lua-static lua-term libX11-devel libXau
-#./configure --with-readline=gnu --x-includes=/-readline=gnu --with-x --x-includes=/usr/include/X11 --x-libraries=/usr/include/X11 --without-lua --without-qt
+#!/bin/bash
+#You may install this software by downloading the compressed file via Github webpage or by its URL via wget <URL>, or using git with the command 
+#git clone https://github.com/Lucioric2000/snippets
+
+#For the first installs in the Centos server you should execute:
+echo -e "[google-chrome]\\nname=google-chrome\\nbaseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64\\nenabled=1\\ngpgcheck=1\\ngpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub"|sudo tee /etc/yum.repos.d/google-chrome.repo
+sudo yum -y install git nano wget bzip2 gcc libX11 libX11-devel xclock xorg-x11-drivers xorg-x11-docs xorg-x11-xinit unzip google-chrome-stable
+
+#Installation of conda and conda packages
+conda_home=/opt/conda
+function conda_install(){
+	#Install the Miniconda Python pachages manager
+	#As is is a complex procedure, it is packed in a function. If you need to re-run this script without reinstalling Anaconda,
+	#comment out the conda_install() function call several lines below.
+	python_version=3
+	echo "Next, the Miniconda package will be downloaded and installed"
+	wget https://repo.continuum.io/miniconda/Miniconda${python_version}-latest-Linux-x86_64.sh
+	chmod +x Miniconda${python_version}-latest-Linux-x86_64.sh
+	echo "You should install Miniconda to the default path there appears"
+	sudo sh Miniconda${python_version}-latest-Linux-x86_64.sh -p ${conda_home}
+	rm Miniconda${python_version}-latest-Linux-x86_64.sh
+	#Make the updated shell path available in this session:
+	export PATH="$PATH:${conda_home}"
+}
+conda_install
+conda install -c bioconda numpy pandas pysam
+conda install -c conda-forge mechanicalsoup selenium
+conda install pymongo flask cython lxml
+pip install flask-runner flask-errormail
+
+#Gnuplot installation
+wget https://cytranet.dl.sourceforge.net/project/gnuplot/gnuplot/5.2.4/gnuplot-5.2.4.tar.gz
+tar -xvzf https://cytranet.dl.sourceforge.net/project/gnuplot/gnuplot/5.2.4/gnuplot-5.2.4.tar.gz
+cd gnuplot-5.2.4
+./configure
+./make
+./make check
+./make install
+
+#Chrome driver (For selenium)
+wget https://chromedriver.storage.googleapis.com/2.40/chromedriver_linux64.zip
+unzip chromedriver_linux64.zip
+sudo mv chromedriver /usr/local/bin
+
+#cd snippets
+cd PM1_plotter
+echo "Now we are in the PM1_plotter subdirectory of the directory where you installed snippets."
+echo "You may execute the PM1_plotter script using, for example, the code `python PM1_plotter ABCC8 123` (for the ABCC1 gene)."
