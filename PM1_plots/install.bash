@@ -36,6 +36,7 @@ cd gnuplot-5.2.4
 ./make
 ./make check
 ./make install
+sudo rm -rf gnuplot-5.2.4*
 
 #Chrome driver (For selenium)
 wget https://chromedriver.storage.googleapis.com/2.40/chromedriver_linux64.zip
