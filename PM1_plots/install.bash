@@ -1,6 +1,7 @@
 #!/bin/bash
 #You may install this software by downloading the compressed file via Github webpage or by its URL via wget <URL>, or using git with the command 
 #git clone https://github.com/Lucioric2000/snippets
+#cd snippets/PM1_plots
 
 #For the first installs in the Centos server you should execute:
 echo -e "[google-chrome]\\nname=google-chrome\\nbaseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64\\nenabled=1\\ngpgcheck=1\\ngpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub"|sudo tee /etc/yum.repos.d/google-chrome.repo
@@ -43,4 +44,5 @@ wget https://chromedriver.storage.googleapis.com/2.40/chromedriver_linux64.zip
 unzip chromedriver_linux64.zip
 sudo mv chromedriver /usr/local/bin
 
+#echo "Now you are in the folder `pwd`"
 echo "You may execute the PM1_plotter script using, for example, the code `python PM1_plotter ABCC8 123` (for the ABCC1 gene)."
