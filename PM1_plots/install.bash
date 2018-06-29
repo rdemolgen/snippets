@@ -38,12 +38,9 @@ cd gnuplot-5.2.4
 ./make install
 sudo rm -rf gnuplot-5.2.4*
 
-#Chrome driver (For selenium)
+#Chrome driver (For Selenium)
 wget https://chromedriver.storage.googleapis.com/2.40/chromedriver_linux64.zip
 unzip chromedriver_linux64.zip
 sudo mv chromedriver /usr/local/bin
 
-#cd snippets
-cd PM1_plotter
-echo "Now we are in the PM1_plotter subdirectory of the directory where you installed snippets."
 echo "You may execute the PM1_plotter script using, for example, the code `python PM1_plotter ABCC8 123` (for the ABCC1 gene)."
