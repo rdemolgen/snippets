@@ -24,6 +24,11 @@ You can generate Consurf conservation scores here:
 
 http://consurf.tau.ac.il/2016/
 
+## Installing ##
+For CentOs users, there is a script (install.bash) that you may run to install the needed dependencies basing in the Conda package, 
+dependency and enviromnent manager (https://conda.io). Alternately, as a standalone installer, you should use the clone_and_install.bash script,
+which will clone the full snippets project, change to this directory and install the required dependencies.
+
 ## Prerequisites: ##
 * Developed with python 3.6
 * Gnuplot version 5
