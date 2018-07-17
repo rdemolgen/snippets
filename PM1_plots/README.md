@@ -37,6 +37,7 @@ which will clone the full snippets project, change to this directory and install
 * numpy
 * pandas
 * collections
+# Chrome driver
 
 ## Usage ##
 
