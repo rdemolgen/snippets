@@ -8,7 +8,6 @@ echo -e "[google-chrome]\\nname=google-chrome\\nbaseurl=http://dl.google.com/lin
 sudo yum -y install git nano wget bzip2 gcc libX11 libX11-devel xclock xorg-x11-drivers xorg-x11-docs xorg-x11-xinit unzip google-chrome-stable
 
 #Installation of conda and conda packages
-conda_home=/opt/conda
 function conda_install(){
 	#Install the Miniconda Python pachages manager
 	#As is is a complex procedure, it is packed in a function. If you need to re-run this script without reinstalling Anaconda,
@@ -21,7 +20,7 @@ function conda_install(){
 	sudo sh Miniconda${python_version}-latest-Linux-x86_64.sh -p ${conda_home}
 	rm Miniconda${python_version}-latest-Linux-x86_64.sh
 	#Make the updated shell path available in this session:
-	#export PATH="$PATH:${conda_home}"
+	export PATH="$PATH:${conda_home}"
     #Output the contents of ~/.bashrc plus the content enclosed in qoutes (which is in a string representation that handles newline characters) to the file ~/.bashrc.new.qiagen
     echo -e "\n#Shell environment for qiagen\nexport LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${srv_qiagen}/bin/ssw/src/"|cat ~/.bashrc ->~/.bashrc.new.qiagen
     #Move the file ~/.bashrc.new.qiagen to ~/.bashrc (overwriting the existent ~/.bashrc withouk asking for confirmation)
@@ -29,6 +28,15 @@ function conda_install(){
     #Make the updated shell path available in this session:
     source ~/.bashrc
 }
+condabin=`which conda`
+if [ -z $condabin]
+then
+	conda_home=/opt/conda
+	conda_install
+else 
+    conda_home=${conda_home%/bin/conda}
+    echo "Conda installation found at $conda_home. Script will use tht installation."
+fi
 conda_install
 conda install -c bioconda numpy pandas pysam
 conda install -c conda-forge mechanicalsoup selenium
