@@ -1,7 +1,7 @@
 #!/bin/bash
 #You may install this software by downloading the compressed file via Github webpage or by its URL via wget <URL>, or using git with the command 
-#git clone https://github.com/Lucioric2000/snippets
-#cd snippets/PM1_plots
+git clone https://github.com/Lucioric2000/snippets
+cd snippets/PM1_plots
 
 #For the first installs in the Centos server you should execute:
 echo -e "[google-chrome]\\nname=google-chrome\\nbaseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64\\nenabled=1\\ngpgcheck=1\\ngpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub"|sudo tee /etc/yum.repos.d/google-chrome.repo
@@ -21,7 +21,13 @@ function conda_install(){
 	sudo sh Miniconda${python_version}-latest-Linux-x86_64.sh -p ${conda_home}
 	rm Miniconda${python_version}-latest-Linux-x86_64.sh
 	#Make the updated shell path available in this session:
-	export PATH="$PATH:${conda_home}"
+	#export PATH="$PATH:${conda_home}"
+    #Output the contents of ~/.bashrc plus the content enclosed in qoutes (which is in a string representation that handles newline characters) to the file ~/.bashrc.new.qiagen
+    echo -e "\n#Shell environment for qiagen\nexport LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${srv_qiagen}/bin/ssw/src/"|cat ~/.bashrc ->~/.bashrc.new.qiagen
+    #Move the file ~/.bashrc.new.qiagen to ~/.bashrc (overwriting the existent ~/.bashrc withouk asking for confirmation)
+    mv -f ~/.bashrc.new.qiagen ~/.bashrc
+    #Make the updated shell path available in this session:
+    source ~/.bashrc
 }
 conda_install
 conda install -c bioconda numpy pandas pysam
@@ -45,4 +51,4 @@ unzip chromedriver_linux64.zip
 sudo mv chromedriver /usr/local/bin
 
 #echo "Now you are in the folder `pwd`"
-echo "You may execute the PM1_plotter script using, for example, the code `python PM1_plotter ABCC8 123` (for the ABCC1 gene)."
+echo "You may execute the PM1_plotter script using, for example, the code `python PM1_plotter.py ABCC8 123` (for the ABCC1 gene)."
