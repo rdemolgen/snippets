@@ -12,6 +12,7 @@ function conda_install(){
 	#Install the Miniconda Python pachages manager
 	#As is is a complex procedure, it is packed in a function. If you need to re-run this script without reinstalling Anaconda,
 	#comment out the conda_install() function call several lines below.
+	conda_home=/opt/conda
 	python_version=3
 	echo "Next, the Miniconda package will be downloaded and installed"
 	wget https://repo.continuum.io/miniconda/Miniconda${python_version}-latest-Linux-x86_64.sh
@@ -29,7 +30,7 @@ function conda_install(){
     source ~/.bashrc
 }
 condabin=`which conda`
-if [ -z $condabin]
+if [ -z $condabin ]
 then
 	conda_home=/opt/conda
 	conda_install
@@ -38,10 +39,10 @@ else
     echo "Conda installation found at $conda_home. Script will use tht installation."
 fi
 conda_install
-conda install -c bioconda numpy pandas pysam
-conda install -c conda-forge mechanicalsoup selenium
-conda install pymongo flask cython lxml
-pip install flask-runner flask-errormail
+sudo ${conda_home}/bin/conda install -c bioconda numpy pandas pysam
+sudo ${conda_home}/bin/conda install -c conda-forge mechanicalsoup selenium
+sudo ${conda_home}/bin/conda install pymongo flask cython lxml
+sudo ${conda_home}/bin/pip install flask-runner flask-errormail
 
 #Gnuplot installation
 wget https://cytranet.dl.sourceforge.net/project/gnuplot/gnuplot/5.2.4/gnuplot-5.2.4.tar.gz
