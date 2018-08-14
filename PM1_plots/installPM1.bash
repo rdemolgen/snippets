@@ -35,23 +35,23 @@ then
 	conda_home=/opt/conda
 	conda_install
 else 
-    conda_home=${conda_home%/bin/conda}
+    conda_home=${condabin%/bin/conda}
     echo "Conda installation found at $conda_home. Script will use tht installation."
 fi
-conda_install
-sudo ${conda_home}/bin/conda install -c bioconda numpy pandas pysam
+source activate base
+udo ${conda_home}/bin/conda install -c bioconda numpy pandas pysam
 sudo ${conda_home}/bin/conda install -c conda-forge mechanicalsoup selenium
 sudo ${conda_home}/bin/conda install pymongo flask cython lxml
 sudo ${conda_home}/bin/pip install flask-runner flask-errormail
-
 #Gnuplot installation
 wget https://cytranet.dl.sourceforge.net/project/gnuplot/gnuplot/5.2.4/gnuplot-5.2.4.tar.gz
-tar -xvzf https://cytranet.dl.sourceforge.net/project/gnuplot/gnuplot/5.2.4/gnuplot-5.2.4.tar.gz
+tar -xvzf gnuplot-5.2.4.tar.gz
 cd gnuplot-5.2.4
 ./configure
-./make
-./make check
-./make install
+make
+make check
+sudo make install
+cd ..
 sudo rm -rf gnuplot-5.2.4*
 
 #Chrome driver (For Selenium)
@@ -60,4 +60,5 @@ unzip chromedriver_linux64.zip
 sudo mv chromedriver /usr/local/bin
 
 #echo "Now you are in the folder `pwd`"
-echo "You may execute the PM1_plotter script using, for example, the code `python PM1_plotter.py ABCC8 123` (for the ABCC1 gene)."
+
+echo "You may execute the PM1_plotter script using, for example, the code 'python PM1_plotter.py ABCC8 123' (for the ABCC1 gene) on the subdirectory snippets/PM1_plotter."
