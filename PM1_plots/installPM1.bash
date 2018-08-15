@@ -28,6 +28,7 @@ function conda_install(){
     mv -f ~/.bashrc.new.qiagen ~/.bashrc
     #Make the updated shell path available in this session:
     source ~/.bashrc
+    source activate base
 }
 condabin=`which conda`
 if [ -z $condabin ]
