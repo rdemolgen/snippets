@@ -6,10 +6,8 @@ from collections import defaultdict
 
 #the purpose of this class is to model and collect the data required of a plot and then write to a file for retention and subsequent plotting
 
-#hgmd_username = input("\nEnter HGMD Pro licence username: ")
-#hgmd_password = getpass.getpass(prompt="Enter HGMD Pro licence password (hidden): ")
-hgmd_username = "1"
-hgmd_password = "123"
+#hgmd_username = "1"
+#hgmd_password = "123"
 
 class Graph_object():
 	
@@ -365,6 +363,8 @@ class Graph_object():
 ### HGMD data  ###################################################################
     def get_HGMD_data(self, gene_name):
         HGMD = HGMD_pro(gene_name)
+        hgmd_username = input("\nEnter HGMD Pro licence username: ")
+        hgmd_password = getpass.getpass(prompt="Enter HGMD Pro licence password (hidden): ")
         all_mutations_soup = HGMD.scrape_HGMD_all_mutations(hgmd_username,hgmd_password)
         #list of objects
         variant_instances = HGMD.extract_missense_nonsense(all_mutations_soup)
