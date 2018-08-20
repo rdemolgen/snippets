@@ -25,8 +25,8 @@ class Graph_object():
     def __init__(self, gene_name, user_pos, *extra_args):
         self.gene = gene_name
         self.user_pos = user_pos
-        self.hgmd_username = hgmd_username
-        self.hgmd_password = hgmd_password
+        #self.hgmd_username = hgmd_username
+        #self.hgmd_password = hgmd_password
         self.extra_args = extra_args
 
    	#Ensembl#############################
@@ -67,9 +67,10 @@ class Graph_object():
             self.consurf_file = self.find_consurf_file(gene_name)
         except:
             self.consurf_file = "no_file"
-        #print("consurffile",self.consurf_file,gene_name)
         self.consurf_data = self.parse_consurf_grades(self.consurf_file, self.length)
-        self.write_consurf_data = self.write_consurf_grades(self.consurf_data)
+        print("consurffile",self.consurf_file,gene_name,self.consurf_data)
+        if len(self.consurf_data["cons"])>0:
+            self.write_consurf_data = self.write_consurf_grades(self.consurf_data)
 
         #HGMD##############################
         print('\nGathering HGMD data from website...')

@@ -5,13 +5,18 @@ from selenium import webdriver
 from selenium.webdriver.remote.command import Command
 chrome_options=webdriver.ChromeOptions()
 chrome_options.set_headless(True)
-#chrome_options.add_argument("--window-size=1920x1080")
-chrome_options.add_argument("no-sandbox")
+chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument('--disable-gpu')  # applicable to windows os only
-#chrome_options.add_argument('start-maximized') # 
-chrome_options.add_argument('disable-infobars')
 chrome_options.add_argument("--disable-extensions")
-chrome_driver = webdriver.Chrome(chrome_options=chrome_options)
+chrome_options.add_experimental_option(
+            'prefs', {
+                'download.default_directory': "/tmp",
+                'download.prompt_for_download': False,
+                'download.directory_upgrade': True,
+                'safebrowsing.enabled': True
+            }
+        )
+chrome_driver = webdriver.Chrome(chrome_options=chrome_options)#,executable_path="/usr/local/bin")
 chrome_driver.set_script_timeout(30)
 
 
