@@ -9,7 +9,7 @@ class Uniprot_api():
 
     #given an ensembl_id returns the uniprot responses as a list of dictionaries
     def get_pid_from_gene(self, ensembl_id):
-        params = {'from':'ENSEMBL_ID','to':'ACC','format':'tab','query': ensembl_id }
+        params = {'from':'ENSEMBL_ID','to':'ACC','format':'tab', 'columns':'entry name,reviewed,protein names,genes,organism,length', 'query': ensembl_id }
         r = requests.get(self.upload_ext, params=params)
         dict_entry_list = []
         split_r = r.text.split('\n')

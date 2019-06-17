@@ -126,7 +126,7 @@ class Graph_object():
     #returns the gff annotation data for gene of interest
     def get_gff_domains(self):
         if len(self.reviewed_uniprot_entries) == 1:
-            gff_response = self.Up.get_entry_gff(self.reviewed_uniprot_entries[0]["Entry"])
+            gff_response = self.Up.get_entry_gff(self.reviewed_uniprot_entries[0]["Entry name"])
             #print(gff_response)
             print('One reviewed Uniprot entry found, connection to Uniprot successful')
             return gff_response.text
